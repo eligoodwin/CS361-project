@@ -1,0 +1,45 @@
+<h1>Inmate List:</h1>
+<h3>Enter your recently completed excercise below:</h3>
+<form>
+    <div>Name: <input type="text" name="name" id="nameIn"></div>
+    <div>Reps: <input type="number" name="reps" id="repIn"></div>
+    <div>Weight: <input type="number" name="weight" id="weightIn"></div>
+    <div>Date: <input type="date" name="date" id="dateIn"></div>
+    <div>Unit: 
+        <input type="radio" name="unit" value="lbs" id="lbsIn"> lbs
+        <input type="radio" name="unit" value="kg" id="kgIn"> kg
+    </div>
+    <input type="button" name="Add Item" value="Add Item" onclick = "validateForm(event)">
+</form>
+<h2>Workout List:</h2>
+<table id = 'gymList'>
+    <tr>
+        <th>Name</th>
+        <th>Reps</th>
+        <th>Weight</th>
+        <th>Units (kg or lbs)</th>
+        <th>Date</th>
+        <th>Edit</th>
+        <th>Delete</th>
+    </tr>
+    {{#each excercise}}
+    <tr>
+        <td>{{this.name}}</td>
+        <td>{{this.reps}}</td>
+        <td>{{this.weight}}</td>
+        <td>{{this.lbs}}</td>
+        <td>{{this.date}}</td>
+        <td>
+            <form action = 'flip1.engr.oregonstate.edu:12432' method="post">
+            <input type="hidden" name="IdEdit" value="{{this.id}}">
+            <input type="submit" name="editItemPage" value="Edit">
+        </form></td>
+        <td>
+            <form>
+            <input type="hidden" name="IdDel" value="{{this.id}}">
+            <input type="button" name="Delete" value="Delete" onclick = "deleteExcercise(this)">
+        </form></td>
+        
+    </tr>
+    {{/each}}
+</table>

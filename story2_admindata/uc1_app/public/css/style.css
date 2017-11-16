@@ -1,0 +1,31 @@
+
+	table {
+		margin: 0 0 2em 0;
+		width: 100%;
+        border-color: black;
+	}
+
+    table tr {
+        border: solid 5px;
+        border-left: 0;
+        border-right: 0;
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    table td {
+        padding: 0.75em 0.75em;
+    }
+
+    table th {
+        font-size: 0.9em;
+        font-weight: 700;
+        padding: 0 0.75em 0.75em 0.75em;
+        text-align: left;
+        color: #000;
+    }
+
+    table tbody tr:nth-child(2n + 1) {
+        background-color: rgba(0, 0, 0, 0.075);
+    }
+    
+    
