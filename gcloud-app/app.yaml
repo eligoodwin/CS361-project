@@ -2,6 +2,11 @@ runtime: python27
 api_version: 1
 threadsafe: true
 
+env_variables:
+    CLOUDSQL_CONNECTION_NAME: inmatedata
+    CLOUDSQL_USER: root
+    CLOUDSQL_PASSWORD: mrmeowmeowadventure
+
 # [START handlers]
 handlers:
 
@@ -17,5 +22,7 @@ libraries:
 - name: webapp2
   version: latest
 - name: jinja2
+  version: latest
+- name: MySQLdb
   version: latest
 # [END libraries]
