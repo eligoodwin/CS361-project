@@ -149,8 +149,19 @@ def addNewUser(self):
     inmateToAdd = {}
     inmateToAdd['fname'] = self.request.get('fname')
     inmateToAdd['minit'] = self.request.get('minit')
+    # minit can only be one char
+    if len(inmateToAdd['minit']) > 1:
+        inmateToAdd['minit'] = inmateToAdd['minit'][0]
+
     inmateToAdd['lname'] = self.request.get('lname')
-    inmateToAdd['dob'] = self.request.get('dob')
+
+    # date must be a valid datestring MM-DD-YYY
+    datestr = self.request.get('dob')
+    try:
+        date = datetime.datetime.strftime(datestr, '%m-%d-&Y')
+    except:
+        datestr = "2000-01-01"
+    inmateToAdd['dob'] = datestr
 
     inmateToAdd['username'] = str(inmateToAdd['fname']) + \
                               str(inmateToAdd['minit'])+ \
