@@ -95,6 +95,7 @@ class ShowAll(webapp2.RequestHandler):
             user['wallet'] = w
             user['username'] = u
             user['password'] = p
+            user['remove_link'] = BASEURL + "prisoner/" + str(i)
             users.append(user)
        
         template = JINJA_ENVIRONMENT.get_template('allusers.html')
@@ -150,10 +151,58 @@ class Add(webapp2.RequestHandler):
             self.response.write(template.render(nav=nav, mess=mess))
             return
 
+class Remove(webapp2.RequestHandler):
+    def get(self, id=None):
+        if not id:
+            return
+
+        nav = {}
+        nav['homelink'] = BASEURL
+        nav['homelinktext'] = "Home"
+        nav['newuserlink'] = BASEURL + "prisoner"
+        nav['newuserlinktext'] = "Add User"
+        nav['alluserslink'] = BASEURL + "all"
+        nav['alluserslinktext'] = "All Users"
+        mess = {}
+        mess['warning'] = "Are you sure you want to delete the " + \
+                "user with ID: " + str(id) + "?"
+        mess['buttonText'] = "Yes"
+        link = {}
+        link['deleteLink'] = BASEURL + "prisoner/" + str(id) 
+        template = JINJA_ENVIRONMENT.get_template('confirmDelete.html')
+        self.response.write(template.render(mess=mess, link=link, nav=nav))
+
+    def post(self, id=None):
+        if not id:
+            return
+
+        db = connect_to_cloudsql()
+        cursor = db.cursor()
+        cursor.execute("DELETE FROM inmate WHERE id = %s", str(id))
+        db.commit()
+        db.close()
+
+        mess = {}
+        mess['header'] = "User Removed from Database"
+
+        nav = {}
+        nav['homelink'] = BASEURL
+        nav['homelinktext'] = "Home"
+        nav['newuserlink'] = BASEURL + "prisoner"
+        nav['newuserlinktext'] = "Add User"
+        nav['alluserslink'] = BASEURL + "all"
+        nav['alluserslinktext'] = "All Users"
+
+        template = JINJA_ENVIRONMENT.get_template('deleteSuccess.html')
+        self.response.write(template.render(nav=nav, mess=mess))
+
+        
+
 # [START app]
 app = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/prisoner', Add),
+    ('/prisoner/([\w-]+)', Remove),
     ('/all', ShowAll),
 ], debug=True)
 # [END app]
