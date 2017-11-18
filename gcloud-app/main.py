@@ -1,10 +1,13 @@
 import os
 import urllib
 import MySQLdb
-
 import jinja2
 import webapp2
 import datetime
+
+import json
+import random
+import string
 
 BASEURL = "https://cs361project.appspot.com/"
 
@@ -94,10 +97,20 @@ class ShowAll(webapp2.RequestHandler):
             user['password'] = p
             users.append(user)
        
-        template = JINJA_ENVIRONMENT.get_template('index.html')
+        template = JINJA_ENVIRONMENT.get_template('allusers.html')
         self.response.write(template.render(users=users, nav=nav))
 
 class Add(webapp2.RequestHandler):
+    def get(self):
+       nav = {}
+       nav['homelink'] = BASEURL
+       nav['homelinktext'] = "Home"
+       nav['alluserslink'] = BASEURL + "all"
+       nav['alluserslinktext'] = "All Users"
+       template = JINJA_ENVIRONMENT.get_template('adduser.html')
+       self.response.write(template.render(nav=nav))
+
+
     def post(self):
             """This end point is used to add an inmate user to the database"""
             #connect to database
@@ -114,17 +127,32 @@ class Add(webapp2.RequestHandler):
             inmateToAdd['wallet'] = int(self.request.get('wallet'))
 
             cursor = db.cursor()
-            cursor.execute("INSERT INTO inmate (fname, lname, dob, username, password, wallet) VALUES (%s, %s, %s, %s, %s, %s);",
-                           (inmateToAdd['fname'],inmateToAdd['lname'], inmateToAdd['dob'], inmateToAdd['username'],
+            cursor.execute("INSERT INTO inmate (fname, minit, lname, dob, username, password, wallet) VALUES (%s, %s, %s, %s, %s, %s, %s);",
+                           (inmateToAdd['fname'], inmateToAdd['minit'], inmateToAdd['lname'],
+                            inmateToAdd['dob'], inmateToAdd['username'],
                             inmateToAdd['password'], inmateToAdd['wallet']))
 
             db.commit()
             db.close()
+
+            nav = {}
+            nav['homelink'] = BASEURL
+            nav['homelinktext'] = "Home"
+            nav['newuserlink'] = BASEURL + "prisoner"
+            nav['newuserlinktext'] = "Add User"
+            nav['alluserslink'] = BASEURL + "all"
+            nav['alluserslinktext'] = "All Users"
+
+            mess = {}
+            mess['success'] = "User Added to Database"
+
+            template = JINJA_ENVIRONMENT.get_template('addsuccess.html')
+            self.response.write(template.render(nav=nav, mess=mess))
             return
 
 # [START app]
 app = webapp2.WSGIApplication([
-    ('/', MainPage)
+    ('/', MainPage),
     ('/prisoner', Add),
     ('/all', ShowAll),
 ], debug=True)

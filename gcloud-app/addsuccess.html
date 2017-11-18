@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 {% autoescape true %}
 <html>
@@ -31,42 +32,25 @@
         overflow: scroll;
       }
     </style>
+    <title>
+      E-Learning for Prison Inmates - User Add Success 
+    </title>
   </head>
   <body>
     <nav class="navbar">
-        <ul class="navbar-nav mr-auto">
+        <ul class="navbar-nav">
           <li class="nav-item active">
             <a class="nav-link" href="{{ nav.homelink }}">{{ nav.homelinktext }}</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ nav.newuserlink }}">{{ nav.newuserlinktext }}</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ nav.alluserslink }}">{{ nav.alluserslinktext }}</a>
           </li>
         </ul>
-    </nav>  
-  <h2>Add a New User</h2>
-  <form method="POST" action="/prisoner">
-    <div class="form-group">
-      <label for="fname">First Name</label>
-      <input type="text" name="fname" class="form-control" id="firstname" placeholder="Enter First Name">
-    </div>
-    <div class="form-group">
-      <label for="minit">Middle Initial</label>
-      <input type="text" name="minit" class="form-control" id="minit" placeholder="Enter Middle Initial">
-    </div>
-    <div class="form-group">
-      <label for="lname">Last Name</label>
-      <input type="text" name="lname" class="form-control" id="lname" placeholder="Enter Last Name">
-    </div>
-    <div class="form-group">
-      <label for="dob">Date of Birth</label>
-      <input type="date" name="dob" class="form-control" id="dob" >
-    </div>
-    <div class="form-group">
-      <label for="wallet">Initial Wallet Balance</label>
-      <input type="number" name="wallet" class="form-control" id="wallet" placeholder="Balance" >
-    </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+    </nav> 
+    <h2>{{ mess.success }}</h2>
   </body>
 </html>
 {% endautoescape %}
