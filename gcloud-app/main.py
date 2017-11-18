@@ -6,6 +6,8 @@ import jinja2
 import webapp2
 import datetime
 
+BASEURL = "https://cs361project.appspot.com/"
+
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
     extensions=['jinja2.ext.autoescape'],
@@ -43,8 +45,30 @@ def connect_to_cloudsql():
 
     return db
 
-class TestPage(webapp2.RequestHandler):
+class MainPage(webapp2.RequestHandler):
     def get(self):
+        nav = {}
+        nav['homelink'] = BASEURL
+        nav['homelinktext'] = "Home"
+        nav['newuserlink'] = BASEURL + "prisoner"
+        nav['newuserlinktext'] = "Add User"
+        nav['alluserslink'] = BASEURL + "all"
+        nav['alluserslinktext'] = "All Users"
+        template = JINJA_ENVIRONMENT.get_template('MainPage.html')
+        self.response.write(template.render(nav=nav))
+
+
+class ShowAll(webapp2.RequestHandler):
+    def get(self):
+
+        nav = {}
+        nav['homelink'] = BASEURL
+        nav['homelinktext'] = "Home"
+        nav['newuserlink'] = BASEURL + "prisoner"
+        nav['newuserlinktext'] = "Add User"
+        nav['alluserslink'] = BASEURL + "all"
+        nav['alluserslinktext'] = "All Users"
+
         db = connect_to_cloudsql()
         cursor = db.cursor()
         cursor.execute('SELECT * FROM inmate')
@@ -71,28 +95,37 @@ class TestPage(webapp2.RequestHandler):
             users.append(user)
        
         template = JINJA_ENVIRONMENT.get_template('index.html')
-        self.response.write(template.render(users=users))
+        self.response.write(template.render(users=users, nav=nav))
 
-class LocalTest(webapp2.RequestHandler):
-    def get(self):
-        template = JINJA_ENVIRONMENT.get_template('index.html')
-        users = []
-        for i in range(2):
-            user = {}
-            user['id'] = 'i'
-            user['fname'] = 'f'
-            user['minit'] = 'm'
-            user['lname'] = 'l'
-            user['dob'] = 'd'
-            user['wallet'] = 'w'
-            user['username'] = 'u'
-            user['password'] = 'p'
-            users.append(user)
-        self.response.write(template.render(users=users))
+class Add(webapp2.RequestHandler):
+    def post(self):
+            """This end point is used to add an inmate user to the database"""
+            #connect to database
+            db = connect_to_cloudsql()
+
+            inmateToAdd = {}
+            inmateToAdd['fname'] = self.request.get('fname')
+            inmateToAdd['minit'] = self.request.get('minit')
+            inmateToAdd['lname'] = self.request.get('lname')
+            inmateToAdd['dob'] = self.request.get('dob')
+
+            inmateToAdd['username'] = str(inmateToAdd['fname']) + str(inmateToAdd['minit'])+ str(inmateToAdd['lname'])
+            inmateToAdd['password'] = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(12))
+            inmateToAdd['wallet'] = int(self.request.get('wallet'))
+
+            cursor = db.cursor()
+            cursor.execute("INSERT INTO inmate (fname, lname, dob, username, password, wallet) VALUES (%s, %s, %s, %s, %s, %s);",
+                           (inmateToAdd['fname'],inmateToAdd['lname'], inmateToAdd['dob'], inmateToAdd['username'],
+                            inmateToAdd['password'], inmateToAdd['wallet']))
+
+            db.commit()
+            db.close()
+            return
 
 # [START app]
 app = webapp2.WSGIApplication([
-    ('/users', TestPage),
-    ('/local', LocalTest),
+    ('/', MainPage)
+    ('/prisoner', Add),
+    ('/all', ShowAll),
 ], debug=True)
 # [END app]

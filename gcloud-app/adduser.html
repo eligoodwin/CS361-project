@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <head>
+    <!-- [START css] -->
+    <link type="text/css" rel="stylesheet" href="/bootstrap/css/bootstrap.css">
+    <link type="text/css" rel="stylesheet" href="/bootstrap/css/bootstrap-responsive.css">
+    <!-- [END css] -->
+    <style type="text/css">
+      body {
+        padding-top: 40px;
+        padding-bottom: 40px;
+        background-color: #f5f5f5;
+      }
+      blockquote {
+        margin-bottom: 10px;
+        border-left-color: #bbb;
+      }
+      form {
+        margin-top: 10px;
+      }
+      .form-signin input[type="text"] {
+        font-size: 16px;
+        height: auto;
+        margin-bottom: 15px;
+        padding: 7px 9px;
+      }
+      .row {
+        margin-left: 0px;
+        margin-top: 10px;
+        overflow: scroll;
+      }
+    </style>
+  </head>
+  <body>
+     <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="#">Navbar</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="{{ nav.homelink }}#">{{ nav.homelinktext }}</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ nav.alluserslink }}">{{ nav.alluserslinktext }}</a>
+          </li>
+        </ul>
+      </div>
+    </nav>  
+  <h2>Add a New User</h2>
+  <form method="POST" action="/prisoner">
+    <div class="form-group">
+      <label for="fname">First Name</label>
+      <input type="text" name="fname" class="form-control" id="firstname" placeholder="Enter First Name">
+    </div>
+    <div class="form-group">
+      <label for="minit">Middle Initial</label>
+      <input type="text" name="minit" class="form-control" id="minit" placeholder="Enter Middle Initial">
+    </div>
+    <div class="form-group">
+      <label for="lname">Last Name</label>
+      <input type="text" name="lname" class="form-control" id="lname" placeholder="Enter Last Name">
+    </div>
+    <div class="form-group">
+      <label for="dob">Date of Birth</label>
+      <input type="date" name="dob" class="form-control" id="dob" >
+    </div>
+    <div class="form-group">
+      <label for="wallet">Initial Wallet Balance</label>
+      <input type="number" name="wallet" class="form-control" id="wallet" placeholder="Balance" >
+    </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+  </body>
+</html>
+{% endautoescape %}
+
