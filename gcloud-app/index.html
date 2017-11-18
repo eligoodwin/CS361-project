@@ -33,7 +33,36 @@
     </style>
   </head>
   <body>
-    <h1>{{ greeting }}</h1>
+    <h2>All Users</h2>
+    <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">First Name</th>
+        <th scope="col">Midle Init</th>
+        <th scope="col">Last Name</th>
+        <th scope="col">DOB</th>
+        <th scope="col">Wallet</th>
+        <th scope="col">Username</th>
+        <th scope="col">Password</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td>{{ user.id }}</td>
+        <td>{{ user.fname }}</td>
+        <td>{{ user.minit }}</td>
+        <td>{{ user.lname }}</td>
+        <td>{{ user.dob }}</td>
+        <td>{{ user.wallet }}</td>
+        <td>{{ user.username }}</td>
+        <td>{{ user.password }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    </table>
   </body>
 </html>
 {% endautoescape %}
+

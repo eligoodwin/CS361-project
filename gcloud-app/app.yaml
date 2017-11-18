@@ -3,7 +3,7 @@ api_version: 1
 threadsafe: true
 
 env_variables:
-    CLOUDSQL_CONNECTION_NAME: inmatedata
+    CLOUDSQL_CONNECTION_NAME: prisonerlearning:us-central1:inmatedata
     CLOUDSQL_USER: root
     CLOUDSQL_PASSWORD: mrmeowmeowadventure
 

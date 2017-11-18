@@ -4,6 +4,7 @@ import MySQLdb
 
 import jinja2
 import webapp2
+import datetime
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -27,6 +28,7 @@ def connect_to_cloudsql():
         db = MySQLdb.connect(
             unix_socket=cloudsql_unix_socket,
             user=CLOUDSQL_USER,
+            db="prisonDatabase",
             passwd=CLOUDSQL_PASSWORD)
 
     # If the unix socket is unavailable, then try to connect using TCP. This
@@ -43,24 +45,54 @@ def connect_to_cloudsql():
 
 class TestPage(webapp2.RequestHandler):
     def get(self):
-        """Simple request handler that shows all of the MySQL variables."""
-        self.response.headers['Content-Type'] = 'text/plain'
-
         db = connect_to_cloudsql()
         cursor = db.cursor()
-        cursor.execute('SHOW VARIABLES')
+        cursor.execute('SELECT * FROM inmate')
 
-        for r in cursor.fetchall():
-            self.response.write('{}\n'.format(r))
-#         template_values = {
-#             'greeting' : "Hello, World!"
-#         }
-#         template = JINJA_ENVIRONMENT.get_template('index.html')
-#         self.response.write(template.render(template_values))
+        users = []
+        for row in cursor:
+            i = int(row[0])
+            f = str(row[1])
+            m = str(row[2])
+            l = str(row[3])
+            d = str(row[4])
+            w = int(row[5])
+            u = str(row[6])
+            p = str(row[7])
+            user = {}
+            user['id'] = i
+            user['fname'] = f
+            user['minit'] = m
+            user['lname'] = l
+            user['dob'] = d
+            user['wallet'] = w
+            user['username'] = u
+            user['password'] = p
+            users.append(user)
+       
+        template = JINJA_ENVIRONMENT.get_template('index.html')
+        self.response.write(template.render(users=users))
 
+class LocalTest(webapp2.RequestHandler):
+    def get(self):
+        template = JINJA_ENVIRONMENT.get_template('index.html')
+        users = []
+        for i in range(2):
+            user = {}
+            user['id'] = 'i'
+            user['fname'] = 'f'
+            user['minit'] = 'm'
+            user['lname'] = 'l'
+            user['dob'] = 'd'
+            user['wallet'] = 'w'
+            user['username'] = 'u'
+            user['password'] = 'p'
+            users.append(user)
+        self.response.write(template.render(users=users))
 
 # [START app]
 app = webapp2.WSGIApplication([
-    ('/', TestPage),
+    ('/users', TestPage),
+    ('/local', LocalTest),
 ], debug=True)
 # [END app]
