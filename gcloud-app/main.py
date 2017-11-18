@@ -216,7 +216,7 @@ def renderConfirmDelete(self, id):
 def deleteUser(self, id):
     db = connect_to_cloudsql()
     cursor = db.cursor()
-    cursor.execute("DELETE FROM inmate WHERE id = %s", str(id))
+    cursor.execute("DELETE FROM inmate WHERE id = %s", [str(id),])
     db.commit()
     db.close()
 
