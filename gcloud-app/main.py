@@ -30,6 +30,8 @@ BASEURL   = "https://cs361project.appspot.com/"
 HOME_LINK = BASEURL
 ALL_LINK  = BASEURL + "all"
 ADD_LINK  = BASEURL + "prisoner"
+LOGON = BASEURL + "logon"
+
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -81,6 +83,8 @@ def connect_to_cloudsql():
 ##############################################################################
 def renderHomePage(self):
     nav = {}
+    nav['logonlink'] = LOGON
+    nav['logonlinkttext'] = "Logon"
     nav['homelink'] = HOME_LINK 
     nav['homelinktext'] = "Home"
     nav['newuserlink'] = ADD_LINK 
