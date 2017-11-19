@@ -277,6 +277,9 @@ class Remove(webapp2.RequestHandler):
         deleteUser(self, id)
 
 class Logon(webapp2.RedirectHandler):
+    """This end point handles logging on. Username and password are queried. If found, redirects to
+    a splash page showing the user's username and creates a cookie with their username for session
+    purposes"""
     def post(self):
         # connect to database
         db = connect_to_cloudsql()
@@ -298,6 +301,7 @@ class Logon(webapp2.RedirectHandler):
             # if not null render user splash page -- this page also will have session data, specifically the username
             template_values = {'username': row[0]}
             template = JINJA_ENVIRONMENT.get_template('splash.html')
+            #username is added to cookie. Can only be transferred over https.
             self.response.set_cookie(key="username", value=row[0], secure=True)
             self.response.write(template.render(template_values))
 
@@ -309,6 +313,8 @@ class Logon(webapp2.RedirectHandler):
 
 
     def get(self):
+        """This end point displays the login page. It is also the redirect
+        if username and password cannot be validated"""
         template = JINJA_ENVIRONMENT.get_template("start.html")
         message = {}
         self.response.write(template.render(message=message))
