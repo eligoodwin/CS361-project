@@ -84,7 +84,7 @@ def connect_to_cloudsql():
 def renderHomePage(self):
     nav = {}
     nav['logonlink'] = LOGON
-    nav['logonlinkttext'] = "Logon"
+    nav['logonlinktext'] = "Logon"
     nav['homelink'] = HOME_LINK 
     nav['homelinktext'] = "Home"
     nav['newuserlink'] = ADD_LINK 
