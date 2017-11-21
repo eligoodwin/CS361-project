@@ -25,8 +25,8 @@ import datetime
 import json
 import random
 import string
-
-BASEURL   = "https://cs361project.appspot.com/"
+BASEURL = "https://prisonerlearning.appspot.com/"
+#BASEURL   = "https://cs361project.appspot.com/"
 HOME_LINK = BASEURL
 ALL_LINK  = BASEURL + "all"
 ADD_LINK  = BASEURL + "prisoner"
