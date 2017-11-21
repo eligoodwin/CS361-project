@@ -39,16 +39,9 @@ CREATE TABLE `question`(
 	`questionID` int(10) NOT NULL AUTO_INCREMENT,
 	`moduleID` int(10) NOT NULL,
 	`question` varchar(256) NOT NULL,
-	`correctAnswerID` int(10) NOT NULL,
-	FOREIGN KEY (`correctAnswerID`) REFERENCES answer(answerID),
+	`answer` boolean NOT NULL,
 	FOREIGN KEY (`moduleID`) REFERENCES learning_module(moduleID),
 	PRIMARY KEY (`questionID`)
 )ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-DROP TABLE IF EXISTS `answer`;
-CREATE TABLE `answer`(
-	`answerID` int(10) NOT NULL AUTO_INCREMENT,
-	`moduleID` int(10) NOT NULL,
-	`answer` varchar(256) NOT NULL,
-	PRIMARY KEY (`answerID`)
-)ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
