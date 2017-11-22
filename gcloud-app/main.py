@@ -31,6 +31,7 @@ HOME_LINK = BASEURL
 ALL_LINK  = BASEURL + "all"
 ADD_LINK  = BASEURL + "prisoner"
 LOGON = BASEURL + "logon"
+ALL_MODULES = BASEURL + "allModules"
 
 
 JINJA_ENVIRONMENT = jinja2.Environment(
@@ -91,8 +92,39 @@ def renderHomePage(self):
     nav['newuserlinktext'] = "Add User"
     nav['alluserslink'] = ALL_LINK 
     nav['alluserslinktext'] = "All Users"
+    nav['moduleslink'] = ALL_LINK
+    nav['moduleslinktext'] = "All Users"
     template = JINJA_ENVIRONMENT.get_template('MainPage.html')
     self.response.write(template.render(nav=nav))
+
+##############################################################################
+# Shows all modules in the database in a table
+##############################################################################
+def showAllModules(self):
+    nav = {}
+    nav['homelink'] = HOME_LINK
+    nav['homelinktext'] = "Home"
+    nav['newuserlink'] = ADD_LINK
+    nav['newuserlinktext'] = "Add User"
+    nav['alluserslink'] = ALL_LINK
+    nav['alluserslinktext'] = "All Users"
+    
+    db = connect_to_cloudsql()
+    cursor = db.cursor()
+    cursor.execute('SELECT * FROM learning_module')
+    
+    modules = []
+    for row in cursor:
+        module = {}
+        module['id'] = int(row[0])
+        module['module_name'] = str(row[1])
+        module['module_data'] = str(row[2])
+        module['module_summary'] = str(row[3])
+        module['module_link'] = BASEURL + "module/" + str(row[0])
+        modules.append(module)
+    
+    template = JINJA_ENVIRONMENT.get_template('allModules.html')
+    self.response.write(template.render(modules=modules, nav=nav))
 
 
 ##############################################################################

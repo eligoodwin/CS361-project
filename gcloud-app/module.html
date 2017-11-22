@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <head>
+    <!-- [START css] -->
+    <link type="text/css" rel="stylesheet" href="/bootstrap/css/bootstrap.css">
+    <link type="text/css" rel="stylesheet" href="/bootstrap/css/bootstrap-responsive.css">
+    <!-- [END css] -->
+    <style type="text/css">
+      body {
+        padding-top: 40px;
+        padding-bottom: 40px;
+        background-color: #f5f5f5;
+      }
+      blockquote {
+        margin-bottom: 10px;
+        border-left-color: #bbb;
+      }
+      form {
+        margin-top: 10px;
+      }
+      .form-signin input[type="text"] {
+        font-size: 16px;
+        height: auto;
+        margin-bottom: 15px;
+        padding: 7px 9px;
+      }
+      .row {
+        margin-left: 0px;
+        margin-top: 10px;
+        overflow: scroll;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+        <ul class="nav nav-pills">
+          <li role="presentation">
+            <a href="{{ nav.homelink }}">{{ nav.homelinktext }}</a>
+          </li>
+        </ul>
+    </nav>
+    <h1>{{module.title}}</h1>
+    <h2>Reading Material:</h2>
+    <p>{{module.data}}</p>
+    <h2>Quiz</h2>
+    <table class="table">
+    <tbody>
+        <form method="post" name="quizform" action="">
+            {% for question in module.questions %}
+            <input value = "{{question.answer}}" name = "{{question.id}}Answer" type = "hidden">
+            <tr>{{ question.prompt }}</tr>
+            <tr>
+                <td>
+                    <nobr>
+                        <input value="true" name="{{question.id}}" type ="radio">
+                        <b>A</b>
+                    </nobr>
+                </td>
+                <td> True</td>
+                <td>
+                    <nobr>
+                        <input value="false" name="{{question.id}}" type ="radio">
+                        <b>B</b>
+                    </nobr>
+                </td>
+                <td> False</td>
+            </tr>
+            {% endfor %}
+            <div>
+                <input value="Submit Answers" onclick="" type="button">
+            </div>
+        </form>
+    </tbody>
+    </table>
+  </body>
+</html>
+{% endautoescape %}
+
