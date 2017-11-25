@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <head>
+    <!-- [START css] -->
+    <link type="text/css" rel="stylesheet" href="/bootstrap/css/bootstrap.css">
+    <link type="text/css" rel="stylesheet" href="/bootstrap/css/bootstrap-responsive.css">
+    <!-- [END css] -->
+    <style type="text/css">
+      body {
+        padding-top: 40px;
+        padding-bottom: 40px;
+        background-color: #f5f5f5;
+      }
+      blockquote {
+        margin-bottom: 10px;
+        border-left-color: #bbb;
+      }
+      form {
+        margin-top: 10px;
+      }
+      .form-signin input[type="text"] {
+        font-size: 16px;
+        height: auto;
+        margin-bottom: 15px;
+        padding: 7px 9px;
+      }
+      .row {
+        margin-left: 0px;
+        margin-top: 10px;
+        overflow: scroll;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+        <ul class="nav nav-pills">
+          <li role="presentation">
+            <a href="{{ nav.homelink }}">{{ nav.homelinktext }}</a>
+          </li>
+          <li role="presentation">
+            <a href="{{ nav.newuserlink }}">{{ nav.newuserlinktext }}</a>
+          </li>
+          <li role="presentation">
+            <a href="{{ nav.alluserslink }}">{{ nav.alluserslinktext }}</a>
+          </li>
+          <li role="presentation">
+            <a href="{{ nav.moduleslink }}">{{ nav.moduleslinktext }}</a>
+          </li>
+        </ul>
+    </nav>  
+  <h2>Purchased Modules</h2>
+    <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Title</th>
+        <th scope="col">Summary</th>
+        <th scope="col">Go to Module</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for module in modules %}
+      <tr>
+        <td>{{ module.id }}</td>
+        <td>{{ module.module_name }}</td>
+        <td>{{ module.module_summary }}</td>
+        <td>
+          <a class="btn btn-danger" href="{{ module.module_link }}"
+            role="button">Go!</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    </table>
+  </body>
+</html>
+{% endautoescape %}
+

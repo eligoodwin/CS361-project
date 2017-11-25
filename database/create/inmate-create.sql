@@ -14,13 +14,13 @@ CREATE TABLE `inmate` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-DROP TABLE IF EXISTS `inmate_learning_resources`;
-CREATE TABLE `inmate_learning_resources`(
-	`prisonerID` int(10) NOT NULL,
-	`moduleID` int(10) NOT NULL,
-	PRIMARY KEY (`prisonerID`),
-	FOREIGN KEY (`prisonerID`) REFERENCES inmate(id),
-	FOREIGN KEY (`moduleID`) REFERENCES learning_module(moduleID)
+DROP TABLE IF EXISTS purchased_resources;
+CREATE TABLE purchased_resources(
+	inmateID int(10) unsigned NOT NULL,
+	moduleID int(10) NOT NULL,
+	PRIMARY KEY (inmateID, moduleID),
+	FOREIGN KEY (inmateID) REFERENCES inmate(id),
+	FOREIGN KEY (moduleID) REFERENCES learning_module(moduleID)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
@@ -29,6 +29,7 @@ CREATE TABLE `learning_module`(
 	`moduleID` int(10) NOT NULL AUTO_INCREMENT,
 	`module_name` varchar(256) NOT NULL,
 	`module_data` text NOT NULL,
+    `module_media` varchar(256),
 	`module_summary` varchar(256) NOT NULL,
 	PRIMARY KEY	(`moduleID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

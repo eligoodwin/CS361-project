@@ -12,8 +12,10 @@
 #                       (1) Adding new users
 #                       (2) Deleting existing users
 #                       (3) Listing all users
+#                       (4) List all purchased modules
+#                       (5) Accessing a module
 #
-# last edit:        18 November 2017
+# last edit:        25 November 2017
 ##############################################################################
 
 import os
@@ -31,7 +33,7 @@ HOME_LINK = BASEURL
 ALL_LINK  = BASEURL + "all"
 ADD_LINK  = BASEURL + "prisoner"
 LOGON = BASEURL + "logon"
-ALL_MODULES = BASEURL + "allModules"
+ALL_MODULES = BASEURL + "modules"
 
 
 JINJA_ENVIRONMENT = jinja2.Environment(
@@ -92,15 +94,15 @@ def renderHomePage(self):
     nav['newuserlinktext'] = "Add User"
     nav['alluserslink'] = ALL_LINK 
     nav['alluserslinktext'] = "All Users"
-    nav['moduleslink'] = ALL_LINK
-    nav['moduleslinktext'] = "All Users"
+    nav['moduleslink'] = ALL_MODULES
+    nav['moduleslinktext'] = "Purchased Modules"
     template = JINJA_ENVIRONMENT.get_template('MainPage.html')
     self.response.write(template.render(nav=nav))
 
 ##############################################################################
 # Shows all modules in the database in a table
 ##############################################################################
-def showAllModules(self):
+def renderAllModules(self):
     nav = {}
     nav['homelink'] = HOME_LINK
     nav['homelinktext'] = "Home"
@@ -120,11 +122,51 @@ def showAllModules(self):
         module['module_name'] = str(row[1])
         module['module_data'] = str(row[2])
         module['module_summary'] = str(row[3])
-        module['module_link'] = BASEURL + "module/" + str(row[0])
+        module['module_link'] = ALL_MODULES + "/" + str(row[0])
         modules.append(module)
     
     template = JINJA_ENVIRONMENT.get_template('allModules.html')
     self.response.write(template.render(modules=modules, nav=nav))
+
+##############################################################################
+# Shows the module with ID = 'id' from the database
+##############################################################################
+def renderModule(self, id):
+    nav = {}
+    nav['homelink'] = HOME_LINK
+    nav['homelinktext'] = "Home"
+    nav['moduleslink'] = ALL_MODULES
+    nav['moduleslinktext'] = "Purchased Modules"
+ 
+    # query the database and find the questions associated with the module
+    db = connect_to_cloudsql()
+    cursor = db.cursor()
+    cursor.execute('SELECT * FROM question WHERE moduleID = %s', [str(id),])
+    
+    questions = []
+    for row in cursor:
+        question = {}
+        question['id'] = int(row[0])
+        question['moduleID'] = str(row[1])
+        question['prompt'] = str(row[2])
+        question['answer'] = str(row[3])
+        questions.append(question)
+    
+    #cursorOne.close()
+
+    # Query the database for the remaining information on the module
+    cursor.execute('SELECT * FROM learning_module')
+
+    module = {}
+    for row in cursor:
+        #module['id'] = int(row[0])
+        module['title'] = str(row[1])
+        module['data'] = str(row[2])
+        module['summary'] = str(row[3])
+        module['media'] = str(row[4])
+    
+    template = JINJA_ENVIRONMENT.get_template('module.html')
+    self.response.write(template.render(module=module, nav=nav, questions=questions))
 
 
 ##############################################################################
@@ -138,6 +180,8 @@ def showAllUsers(self):
     nav['newuserlinktext'] = "Add User"
     nav['alluserslink'] = ALL_LINK 
     nav['alluserslinktext'] = "All Users"
+    nav['moduleslink'] = ALL_MODULES
+    nav['moduleslinktext'] = "Purchased Modules"
 
     db = connect_to_cloudsql()
     cursor = db.cursor()
@@ -166,13 +210,15 @@ def showAllUsers(self):
 # the fields id, username, and password are auto generated
 ##############################################################################
 def renderAddUser(self):
-   nav = {}
-   nav['homelink'] = HOME_LINK 
-   nav['homelinktext'] = "Home"
-   nav['alluserslink'] = ALL_LINK 
-   nav['alluserslinktext'] = "All Users"
-   template = JINJA_ENVIRONMENT.get_template('adduser.html')
-   self.response.write(template.render(nav=nav))
+    nav = {}
+    nav['homelink'] = HOME_LINK
+    nav['homelinktext'] = "Home"
+    nav['alluserslink'] = ALL_LINK
+    nav['alluserslinktext'] = "All Users"
+    nav['moduleslink'] = ALL_MODULES
+    nav['moduleslinktext'] = "Purchased Modules"
+    template = JINJA_ENVIRONMENT.get_template('adduser.html')
+    self.response.write(template.render(nav=nav))
 
 
 ##############################################################################
@@ -226,6 +272,8 @@ def addNewUser(self):
     nav['newuserlinktext'] = "Add User"
     nav['alluserslink'] = ALL_LINK 
     nav['alluserslinktext'] = "All Users"
+    nav['moduleslink'] = ALL_MODULES
+    nav['moduleslinktext'] = "Purchased Modules"
 
     mess = {}
     mess['success'] = "User Added to Database"
@@ -246,6 +294,8 @@ def renderConfirmDelete(self, id):
     nav['newuserlinktext'] = "Add User"
     nav['alluserslink'] = ALL_LINK 
     nav['alluserslinktext'] = "All Users"
+    nav['moduleslink'] = ALL_MODULES
+    nav['moduleslinktext'] = "Purchased Modules"
     mess = {}
     mess['warning'] = "Are you sure you want to delete the " + \
             "user with ID: " + str(id) + "?"
@@ -277,6 +327,8 @@ def deleteUser(self, id):
     nav['newuserlinktext'] = "Add User"
     nav['alluserslink'] = ALL_LINK 
     nav['alluserslinktext'] = "All Users"
+    nav['moduleslink'] = ALL_MODULES
+    nav['moduleslinktext'] = "Purchased Modules"
 
     template = JINJA_ENVIRONMENT.get_template('deleteSuccess.html')
     self.response.write(template.render(nav=nav, mess=mess))
@@ -311,6 +363,22 @@ class Remove(webapp2.RequestHandler):
         if not id:
             return
         deleteUser(self, id)
+
+class AllModules(webapp2.RequestHandler):
+    def get(self):
+        renderAllModules(self)
+
+class ShowModule(webapp2.RequestHandler):
+    def get(self, id=None):
+        if not id:
+            return
+        renderModule(self, id)
+    
+    
+    #   def post(self, id=None):
+    #   if not id:
+    #       return
+#   renderModule(self, id)
 
 class Logon(webapp2.RedirectHandler):
     """This end point handles logging on. Username and password are queried. If found, redirects to
@@ -366,5 +434,7 @@ app = webapp2.WSGIApplication([
     ('/start.html', Logon),
     ('/logon', Logon),
     ('/all', ShowAll),
+    ('/modules', AllModules),
+    ('/modules/([\w-]+)', ShowModule),
 ], debug=True)
 # [END app]
