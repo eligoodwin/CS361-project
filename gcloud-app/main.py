@@ -33,7 +33,7 @@ HOME_LINK = BASEURL
 ALL_LINK  = BASEURL + "all"
 ADD_LINK  = BASEURL + "prisoner"
 LOGON = BASEURL + "logon"
-ALL_MODULES = BASEURL + "modules"
+ALL_MODULES = BASEURL + "purchased_modules"
 
 
 JINJA_ENVIRONMENT = jinja2.Environment(
@@ -99,10 +99,11 @@ def renderHomePage(self):
     template = JINJA_ENVIRONMENT.get_template('MainPage.html')
     self.response.write(template.render(nav=nav))
 
+
 ##############################################################################
 # Shows all modules in the database in a table
 ##############################################################################
-def renderAllModules(self):
+def renderPurchasedModules(self, user_id):
     nav = {}
     nav['homelink'] = HOME_LINK
     nav['homelinktext'] = "Home"
@@ -113,7 +114,9 @@ def renderAllModules(self):
     
     db = connect_to_cloudsql()
     cursor = db.cursor()
-    cursor.execute('SELECT * FROM learning_module')
+    cursor.execute('SELECT * FROM learning_module lm INNER JOIN ' + \
+                   'purchased_resources pr ON pr.moduleID = lm.moduleID' + \
+                   'WHERE inmateID = %s', (str(user_id)))
     
     modules = []
     for row in cursor:
@@ -333,6 +336,13 @@ def deleteUser(self, id):
     template = JINJA_ENVIRONMENT.get_template('deleteSuccess.html')
     self.response.write(template.render(nav=nav, mess=mess))
 
+def renderLogon(self):
+    """This end point displays the login page. It is also the redirect
+    if username and password cannot be validated"""
+    template = JINJA_ENVIRONMENT.get_template("start.html")
+    message = {}
+    self.response.write(template.render(message=message))
+
 
 # [START RequestHandlers]
 class MainPage(webapp2.RequestHandler):
@@ -364,21 +374,19 @@ class Remove(webapp2.RequestHandler):
             return
         deleteUser(self, id)
 
-class AllModules(webapp2.RequestHandler):
+class purchasedModules(webapp2.RequestHandler):
     def get(self):
-        renderAllModules(self)
+        user_id = self.request.cookies.get("username")
+        if not user_id
+            renderLogon(self)
+        else
+            renderPurchasedModules(self, user_id)
 
 class ShowModule(webapp2.RequestHandler):
     def get(self, id=None):
         if not id:
             return
         renderModule(self, id)
-    
-    
-    #   def post(self, id=None):
-    #   if not id:
-    #       return
-#   renderModule(self, id)
 
 class Logon(webapp2.RedirectHandler):
     """This end point handles logging on. Username and password are queried. If found, redirects to
@@ -434,7 +442,7 @@ app = webapp2.WSGIApplication([
     ('/start.html', Logon),
     ('/logon', Logon),
     ('/all', ShowAll),
-    ('/modules', AllModules),
-    ('/modules/([\w-]+)', ShowModule),
+    ('/purchased_modules', purchasedModules),
+    ('/purchased_modules/([\w-]+)', ShowModule),
 ], debug=True)
 # [END app]
