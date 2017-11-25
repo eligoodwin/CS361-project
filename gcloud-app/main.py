@@ -103,7 +103,7 @@ def renderHomePage(self):
 ##############################################################################
 # Shows all modules in the database in a table
 ##############################################################################
-def renderPurchasedModules(self, user_id):
+def renderPurchasedModules(self, username):
     nav = {}
     nav['homelink'] = HOME_LINK
     nav['homelinktext'] = "Home"
@@ -112,11 +112,14 @@ def renderPurchasedModules(self, user_id):
     nav['alluserslink'] = ALL_LINK
     nav['alluserslinktext'] = "All Users"
     
+    print(username)
+    
     db = connect_to_cloudsql()
     cursor = db.cursor()
     cursor.execute('SELECT * FROM learning_module lm INNER JOIN ' + \
-                   'purchased_resources pr ON pr.moduleID = lm.moduleID' + \
-                   'WHERE inmateID = %s', (str(user_id)))
+                   'purchased_resources pr ON pr.moduleID = lm.moduleID ' + \
+                   'INNER JOIN inmate i ON i.id = pr.inmateID ' + \
+                   'WHERE i.username = %s', [str(username),])
     
     modules = []
     for row in cursor:
@@ -376,11 +379,11 @@ class Remove(webapp2.RequestHandler):
 
 class purchasedModules(webapp2.RequestHandler):
     def get(self):
-        user_id = self.request.cookies.get("username")
-        if not user_id
+        username = self.request.cookies.get("username")
+        if not username:
             renderLogon(self)
-        else
-            renderPurchasedModules(self, user_id)
+        else:
+            renderPurchasedModules(self, username)
 
 class ShowModule(webapp2.RequestHandler):
     def get(self, id=None):
