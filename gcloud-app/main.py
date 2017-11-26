@@ -435,12 +435,54 @@ class Logon(webapp2.RedirectHandler):
         self.response.write(template.render(message=message))
 
 
+
+class Store(webapp2.RequestHandler):
+    """"Used to process handle requests relating to the store"""
+    nav = {}
+    nav['homelink'] = HOME_LINK
+    nav['homelinktext'] = "Home"
+    nav['newuserlink'] = ADD_LINK
+    nav['newuserlinktext'] = "Add User"
+    nav['alluserslink'] = ALL_LINK
+    nav['alluserslinktext'] = "All Users"
+    nav['moduleslink'] = ALL_MODULES
+    nav['moduleslinktext'] = "Purchased Modules"
+    mess = {}
+
+    def get(self):
+        """used to display the store"""
+        #connect to database
+        db = connect_to_cloudsql()
+
+        #make query
+        cursor = db.cursor()
+
+        cursor.execute("SELECT moduleID, module_name, module_summary FROM learning_module")
+        # parse query results into dict
+        if cursor is not None:
+            modules = []
+            for row in cursor:
+                module = {}
+                module['moduleID']  = int(row[0])
+                module['module_name'] = str(row[1])
+                module['module_summary'] = str(row[2])
+                modules.append(module)
+            template = JINJA_ENVIRONMENT.get_template("store.html")
+            self.response.write(template.render(modules=modules, nav=self.nav))
+        else:
+            self.response.write("You goofed it bad.")
+
+
+        def post(self):
+            """used for purchasing content"""
+
 # [END RequestHandlers]
 
 # [START app]
 app = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/prisoner', Add),
+    ('/store', Store),
     ('/prisoner/([\w-]+)', Remove),
     ('/start.html', Logon),
     ('/logon', Logon),
