@@ -5,38 +5,23 @@
 <head>
     <meta charset="UTF-8">
     <title>Welcome</title>
-        <script>
-        window.onload = function (){
-            function getCookie(cname) {
-                var name = cname + "=";
-                var decodedCookie = decodeURIComponent(document.cookie);
-                var ca = decodedCookie.split(';');
-                for (var i = 0; i < ca.length; i++) {
-                    var c = ca[i];
-                    while (c.charAt(0) == ' ') {
-                        modText
-                        c = c.substring(1);
-                    }
-                    if (c.indexOf(name) == 0) {
-                        return c.substring(name.length, c.length);
-                    }
-                }
-                return "";
-            }
-
-            var username = getCookie("username");
-            console.log("Username is :" + username);
-            var innerText = "You are: " + username + ". This was retrieved from the cookie.";
-            document.getElementById('modText').innerHTML = innerText;
-        };
-    </script>
 </head>
 <body>
 
-    <h1>WELCOME TO LEARNING ADVENTURE.</h1>
-    <p>You learn now: {{username}}.</p>
+    <h1>Account Information.</h1>
+    <p>Welcome back, {{username}}. The links below will allow you to browse your currently purchased
+        learning modules or you can browse for new learning modules</p>
+    <p>
+        <ul>
+        <li>
+            <a href="/purchased_modules">Purchased Modules</a>
+        </li>
+        <li>
+            <a href="/store">Learning module store</a>
+        </li>
+    </ul>
+    </p>
 
-    <p id="modText">test</p>
 
 
 </body>
