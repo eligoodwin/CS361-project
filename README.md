@@ -1,4 +1,4 @@
 # CS361-project
 
-live url for admin app
-https://cs361project.appspot.com/
+live url for project
+https://prisonerlearning.appspot.com/
