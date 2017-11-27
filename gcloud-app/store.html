@@ -37,6 +37,10 @@
     </title>
   </head>
   <body>
+    <script>
+        //shopping cart
+        var shoppingCart = [];
+    </script>
     <nav>
         <ul class="nav nav-pills">
           <li role="presentation">
@@ -56,6 +60,7 @@
           </li>
         </ul>
     </nav>
+
     <H3>Available Modules to Purchase</h3>
         <p>Add modules to your cart for purchase</p>
         <ul>
@@ -64,12 +69,19 @@
                 <h4>{{module.module_name}}</h4>
                 <p>{{module.module_summary}}</p>
                 <button id="{{module.moduleID}}" type="button"> Add Module To Cart</button>
+                <script>
+                    document.getElementById("{{module.moduleID}}").addEventListener("click", function(){
+                        var itemToAdd = document.getElementById("{{module.moduleID}}").value;
+                        if(!(shoppingCart.contains(itemToAdd))){
+                            shoppingCart.push(itemToAdd);
+                        }
+                    });
+                </script>
             </li>
 
         {% endfor %}
         </ul>
-
-
+        <button id="timeToCheckOut" type="button">Checkout</button>
 
   </body>
 </html>
