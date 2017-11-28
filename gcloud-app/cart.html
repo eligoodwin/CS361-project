@@ -56,6 +56,12 @@
         </ul>
     </nav> 
   <h2>Shopping Cart</h2>
+{% if modules %}
+
+  <script>
+    var moduleIDs = []
+  </script>
+
     <table class="table">
     <thead>
       <tr>
@@ -70,15 +76,30 @@
         <td>{{ module.id }}</td>
         <td>{{ module.name }}</td>
         <td>
-          <a class="btn btn-danger" href="{{ module.remove_link }}"
-            role="button">Remove Module</a>
+          <button class="btn btn-danger" id="{{ module.id }}"
+            role="button">Remove Module</button>
+  <script>
+    moduleIDs.push(document.getElementById("{{module.id}}").id);
+    document.getElementById("{{ module.id }}").addEventListener("click",
+      function() {
+        document.getElementById("{{ module.id }}").innerHTML = "Removed From Cart";
+      });
+  </script>
         </td>
       </tr>
       {% endfor %}
     </tbody>
     </table>
     <div>
-      
+      <button id="confirmCheckout" type="button">Confirm Checkout</button>
+{% endif %}
+{% if cart_empty %}
+    <div>
+      <h2>
+      {{ cart_empty.text }}
+      </h2>
+    </div>
+{% endif %} 
   </body>
 </html>
 {% endautoescape %}

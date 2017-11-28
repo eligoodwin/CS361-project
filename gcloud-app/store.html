@@ -85,6 +85,7 @@
                         else{
                             console.log(itemToAdd + " is already in cart");
                         }
+                      document.getElementById("{{module.moduleID}}").innerHTML = "Added to Cart";
                     });
                 </script>
             </li>
@@ -93,20 +94,15 @@
         </ul>
         <button id="checkout" type="button">Checkout</button>
         <script>
-            document.getElementById("checkout").addEventListener("click", function(event){
+            document.getElementById("checkout").addEventListener("click",
+              function(event){
                 //make list into a string with CSV
-                var shoppingList = shoppingCart.join();
+                var shoppingList = shoppingCart.join('|');
                 //to cookie
                 document.cookie = "shoppingList=" + shoppingList;
 
-                var request = new XMLHttpRequest();
-                request.open("POST", "{{ nav.checkout_link }}", true);
-                request.setRequestHeader("Content-Type", "application/json");
-                request.send(shoppingList);
-                event.preventDefault();
-
                 //redirect to the next page -- temporarily set to google
-              //window.location.href ="{{ nav.checkout_link }}";
+                window.location.href ="{{ nav.checkout_link }}";
             });
         </script>
 

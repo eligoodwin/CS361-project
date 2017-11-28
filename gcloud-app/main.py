@@ -365,18 +365,36 @@ def renderShoppingCart(self):
     nav['moduleslink'] = ALL_MODULES
     nav['moduleslinktext'] = "Purchased Modules"
 
-    # test with all modules in cart
+    # the cookie is send as a '|' delimited string
+    # modIDs will be a python list of the ids that were sent in the cookie
+    # the empty cookie still contains an empty string so that is what the:w
+    # following test is for
+    cookieString = self.request.cookies.get("shoppingList")
+    modIDs = cookieString.split("|")
+    if "" in modIDs:
+       cart_empty = {}
+       cart_empty['text'] = "No Items in Cart"
+       template = JINJA_ENVIRONMENT.get_template('cart.html')
+       self.response.write(template.render(nav=nav, cart_empty=cart_empty))
+       return
+
+
+    # show modules whose id's match the ids sent in the cookie
     modules = []
 
     db = connect_to_cloudsql()
     cursor = db.cursor()
-    cursor.execute('SELECT * FROM learning_module')
-    for row in cursor:
+    
+    for i in modIDs:
+        cursor.execute("SELECT * FROM learning_module WHERE moduleID = %s",
+                       [str(i),])
+        m = cursor.fetchone()
         module = {}
-        module['id'] = int(row[0])
-        module['name'] = str(row[1])
+        module['id'] = int(m[0])
+        module['name'] = str(m[1])
         module['remove_link'] = "none"
         modules.append(module)
+        
 
     template = JINJA_ENVIRONMENT.get_template('cart.html')
     self.response.write(template.render(nav=nav, modules=modules))
@@ -510,7 +528,7 @@ class Store(webapp2.RequestHandler):
             self.response.write("You goofed it bad.")
 
 class ShoppingCart(webapp2.RequestHandler):
-    def post(self):
+    def get(self):
         renderShoppingCart(self)
 
 # [END RequestHandlers]
