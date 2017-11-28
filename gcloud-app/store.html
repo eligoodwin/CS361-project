@@ -70,10 +70,20 @@
                 <p>{{module.module_summary}}</p>
                 <button id="{{module.moduleID}}" type="button"> Add Module To Cart</button>
                 <script>
+                    //add items to cart and test if they exist in the cart or not
                     document.getElementById("{{module.moduleID}}").addEventListener("click", function(){
-                        var itemToAdd = document.getElementById("{{module.moduleID}}").value;
-                        if(!(shoppingCart.contains(itemToAdd))){
+                        var itemToAdd = document.getElementById("{{module.moduleID}}").id;
+                        console.log("Item to add: " + itemToAdd);
+
+                        if(!(shoppingCart.includes(itemToAdd))){
                             shoppingCart.push(itemToAdd);
+                            for(var i = 0; i < shoppingCart.length; ++i){
+                                console.log("Item in cart is: " + shoppingCart[i]);
+                            }
+
+                        }
+                        else{
+                            console.log(itemToAdd + " is already in cart");
                         }
                     });
                 </script>
@@ -81,7 +91,17 @@
 
         {% endfor %}
         </ul>
-        <button id="timeToCheckOut" type="button">Checkout</button>
+        <button id="checkout" type="button">Checkout</button>
+        <script>
+            document.getElementById("checkout").addEventListener("click", function(){
+                //make list into a string with CSV
+                var shoppingList = shoppingCart.join();
+                //to cookie
+                document.cookie = "shoppingList=" + shoppingList;
+                //redirect to the next page -- temporarily set to google
+                window.location.href ="https://google.com";
+            });
+        </script>
 
   </body>
 </html>

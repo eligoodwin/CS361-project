@@ -473,9 +473,6 @@ class Store(webapp2.RequestHandler):
             self.response.write("You goofed it bad.")
 
 
-        def post(self):
-            """used for purchasing content"""
-
 # [END RequestHandlers]
 
 # [START app]
