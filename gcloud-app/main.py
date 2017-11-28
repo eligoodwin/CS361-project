@@ -27,8 +27,8 @@ import datetime
 import json
 import random
 import string
-BASEURL = "https://prisonerlearning.appspot.com/"
-#BASEURL   = "https://cs361project.appspot.com/"
+#BASEURL = "https://prisonerlearning.appspot.com/"
+BASEURL   = "https://cs361project.appspot.com/"
 HOME_LINK = BASEURL
 ALL_LINK  = BASEURL + "all"
 ADD_LINK  = BASEURL + "prisoner"
@@ -347,6 +347,42 @@ def renderLogon(self):
     self.response.write(template.render(message=message))
 
 
+##############################################################################
+# removes the user with ID = 'id' from the database then
+# renders the page confirming the delete took place
+##############################################################################
+def renderShoppingCart(self):
+    # navigation links
+    nav = {}
+    nav['logonlink'] = LOGON
+    nav['logonlinktext'] = "Logon"
+    nav['homelink'] = HOME_LINK 
+    nav['homelinktext'] = "Home"
+    nav['newuserlink'] = ADD_LINK 
+    nav['newuserlinktext'] = "Add User"
+    nav['alluserslink'] = ALL_LINK 
+    nav['alluserslinktext'] = "All Users"
+    nav['moduleslink'] = ALL_MODULES
+    nav['moduleslinktext'] = "Purchased Modules"
+
+    # test with all modules in cart
+    modules = []
+
+    db = connect_to_cloudsql()
+    cursor = db.cursor()
+    cursor.execute('SELECT * FROM learning_module')
+    for row in cursor:
+        module = {}
+        module['id'] = int(row[0])
+        module['name'] = str(row[1])
+        module['remove_link'] = "none"
+        modules.append(module)
+
+    template = JINJA_ENVIRONMENT.get_template('cart.html')
+    self.response.write(template.render(nav=nav, modules=modules))
+
+
+
 # [START RequestHandlers]
 class MainPage(webapp2.RequestHandler):
     def get(self):
@@ -447,6 +483,7 @@ class Store(webapp2.RequestHandler):
     nav['alluserslinktext'] = "All Users"
     nav['moduleslink'] = ALL_MODULES
     nav['moduleslinktext'] = "Purchased Modules"
+    nav['checkout_link'] = BASEURL + "cart"
     mess = {}
 
     def get(self):
@@ -472,6 +509,9 @@ class Store(webapp2.RequestHandler):
         else:
             self.response.write("You goofed it bad.")
 
+class ShoppingCart(webapp2.RequestHandler):
+    def post(self):
+        renderShoppingCart(self)
 
 # [END RequestHandlers]
 
@@ -486,5 +526,6 @@ app = webapp2.WSGIApplication([
     ('/all', ShowAll),
     ('/purchased_modules', purchasedModules),
     ('/purchased_modules/([\w-]+)', ShowModule),
+    ('/cart', ShoppingCart),
 ], debug=True)
 # [END app]

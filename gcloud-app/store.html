@@ -33,7 +33,7 @@
       }
     </style>
     <title>
-      E-Learning for Prison Inmates - Admin Homepage
+      E-Learning for Prison Inmates - Resource Store 
     </title>
   </head>
   <body>
@@ -93,15 +93,25 @@
         </ul>
         <button id="checkout" type="button">Checkout</button>
         <script>
-            document.getElementById("checkout").addEventListener("click", function(){
+            document.getElementById("checkout").addEventListener("click", function(event){
                 //make list into a string with CSV
                 var shoppingList = shoppingCart.join();
                 //to cookie
                 document.cookie = "shoppingList=" + shoppingList;
+
+                var request = new XMLHttpRequest();
+                request.open("POST", "{{ nav.checkout_link }}", true);
+                request.setRequestHeader("Content-Type", "application/json");
+                request.send(shoppingList);
+                event.preventDefault();
+
                 //redirect to the next page -- temporarily set to google
-                window.location.href ="https://google.com";
+              //window.location.href ="{{ nav.checkout_link }}";
             });
         </script>
+
+
+
 
   </body>
 </html>
