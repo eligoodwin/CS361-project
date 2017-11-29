@@ -19,8 +19,8 @@ CREATE TABLE purchased_resources(
 	inmateID int(10) unsigned NOT NULL,
 	moduleID int(10) NOT NULL,
 	PRIMARY KEY (inmateID, moduleID),
-	FOREIGN KEY (inmateID) REFERENCES inmate(id),
-	FOREIGN KEY (moduleID) REFERENCES learning_module(moduleID)
+	FOREIGN KEY (inmateID) REFERENCES inmate(id) ON DELETE CASCADE,
+	FOREIGN KEY (moduleID) REFERENCES learning_module(moduleID) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
