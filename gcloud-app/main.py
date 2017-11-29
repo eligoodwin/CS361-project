@@ -348,8 +348,7 @@ def renderLogon(self):
 
 
 ##############################################################################
-# removes the user with ID = 'id' from the database then
-# renders the page confirming the delete took place
+# render shopping cart page
 ##############################################################################
 def renderShoppingCart(self):
     # navigation links
@@ -364,6 +363,8 @@ def renderShoppingCart(self):
     nav['alluserslinktext'] = "All Users"
     nav['moduleslink'] = ALL_MODULES
     nav['moduleslinktext'] = "Purchased Modules"
+
+    nav['confirm_checkout_link'] = BASEURL + "cart/confirmCheckout"
 
     # the cookie is send as a '|' delimited string
     # modIDs will be a python list of the ids that were sent in the cookie
@@ -400,11 +401,157 @@ def renderShoppingCart(self):
     self.response.write(template.render(nav=nav, modules=modules))
 
 
+##############################################################################
+# actually add the purchased modules to the user
+##############################################################################
+def doCheckout(self):
+    # navigation links
+    nav = {}
+    nav['logonlink'] = LOGON
+    nav['logonlinktext'] = "Logon"
+    nav['homelink'] = HOME_LINK 
+    nav['homelinktext'] = "Home"
+    nav['newuserlink'] = ADD_LINK 
+    nav['newuserlinktext'] = "Add User"
+    nav['alluserslink'] = ALL_LINK 
+    nav['alluserslinktext'] = "All Users"
+    nav['moduleslink'] = ALL_MODULES
+    nav['moduleslinktext'] = "Purchased Modules"
+
+    template = JINJA_ENVIRONMENT.get_template('completeCheckout.html')
+
+    cookieString = self.request.cookies.get("checkouts")
+    IDs = cookieString.split("|")
+    if "" in IDs:
+        self.response.write(template.render(nav=nav))
+        return
+
+    db = connect_to_cloudsql()
+    cursor = db.cursor()
+
+    username = self.request.cookies.get("username")
+    cursor.execute("SELECT id FROM inmate WHERE username = %s",
+                   [str(username),])
+    userID = cursor.fetchone()[0]
+
+    modules = []
+
+    for i in IDs:
+        cursor.execute("INSERT INTO purchased_resources " + \
+                       "(inmateID, moduleID) VALUES (%s, %s)", 
+                       [int(userID), int(i),])
+        db.commit()
+        cursor.execute("SELECT moduleID, module_name FROM " + \
+                       "learning_module WHERE moduleID = %s",
+                       [str(i),])
+        m = cursor.fetchone()
+        module = {}
+        module['id'] = int(m[0])
+        module['name'] = str(m[1])
+        modules.append(module)
+
+    self.response.write(template.render(nav=nav, modules=modules))
+
+    
+
+        
+
+##############################################################################
+# POST logon endpoint
+#
+# This end point handles logging on. Username and password are queried. If found, redirects to
+# a splash page showing the user's username and creates a cookie with their username for session
+# purposes
+##############################################################################
+def logonPost(self):
+    # connect to database
+    db = connect_to_cloudsql()
+
+    # get user data
+    logonData = {}
+    logonData['username'] = self.request.get('username')
+    logonData['password'] = self.request.get('password')
+
+    # find matching query
+    cursor = db.cursor()
+    cursor.execute("SELECT username FROM inmate WHERE username = %s and password = %s;",
+                   (logonData['username'], logonData['password']))
+    row = cursor.fetchone()
+    cursor.close()
+
+    # test that values are not null -- occurs only if no matching user and password
+    if row is not None:
+        # if not null render user splash page -- this page also will have session data, specifically the username
+        template_values = {'username': row[0]}
+        template = JINJA_ENVIRONMENT.get_template('splash.html')
+        #username is added to cookie. Can only be transferred over https.
+        self.response.set_cookie(key="username", value=row[0], secure=True)
+        self.response.write(template.render(template_values))
+
+    # if null redirect back to login page
+    else:
+        message = {'error': 'username and/or password do not match'}
+        template = JINJA_ENVIRONMENT.get_template('start.html')
+        self.response.write(template.render(message=message))
+
+
+##############################################################################
+# GET logon endpoint
+##############################################################################
+def logonGet(self):
+    """This end point displays the login page. It is also the redirect
+    if username and password cannot be validated"""
+    template = JINJA_ENVIRONMENT.get_template("start.html")
+    message = {}
+    self.response.write(template.render(message=message))
+
+
+##############################################################################
+# render store page
+##############################################################################
+def renderStorePage(self):
+    """"Used to process handle requests relating to the store"""
+    
+    nav = {}
+    nav['homelink'] = HOME_LINK
+    nav['homelinktext'] = "Home"
+    nav['newuserlink'] = ADD_LINK
+    nav['newuserlinktext'] = "Add User"
+    nav['alluserslink'] = ALL_LINK
+    nav['alluserslinktext'] = "All Users"
+    nav['moduleslink'] = ALL_MODULES
+    nav['moduleslinktext'] = "Purchased Modules"
+    nav['checkout_link'] = BASEURL + "cart"
+    mess = {}
+    
+    """used to display the store"""
+    #connect to database
+    db = connect_to_cloudsql()
+
+    #make query
+    cursor = db.cursor()
+
+    cursor.execute("SELECT moduleID, module_name, module_summary FROM learning_module")
+    # parse query results into dict
+    if cursor is not None:
+        modules = []
+        for row in cursor:
+            module = {}
+            module['moduleID']  = int(row[0])
+            module['module_name'] = str(row[1])
+            module['module_summary'] = str(row[2])
+            modules.append(module)
+        template = JINJA_ENVIRONMENT.get_template("store.html")
+        self.response.write(template.render(modules=modules, nav=nav))
+    else:
+        self.response.write("You goofed it bad.")
+
 
 # [START RequestHandlers]
 class MainPage(webapp2.RequestHandler):
     def get(self):
         renderHomePage(self)
+
 
 class ShowAll(webapp2.RequestHandler):
     def get(self):
@@ -425,11 +572,11 @@ class Remove(webapp2.RequestHandler):
             return
         renderConfirmDelete(self, id)
 
-
     def post(self, id=None):
         if not id:
             return
         deleteUser(self, id)
+
 
 class purchasedModules(webapp2.RequestHandler):
     def get(self):
@@ -439,97 +586,36 @@ class purchasedModules(webapp2.RequestHandler):
         else:
             renderPurchasedModules(self, username)
 
+
 class ShowModule(webapp2.RequestHandler):
     def get(self, id=None):
         if not id:
             return
         renderModule(self, id)
 
+
 class Logon(webapp2.RedirectHandler):
-    """This end point handles logging on. Username and password are queried. If found, redirects to
-    a splash page showing the user's username and creates a cookie with their username for session
-    purposes"""
     def post(self):
-        # connect to database
-        db = connect_to_cloudsql()
-
-        # get user data
-        logonData = {}
-        logonData['username'] = self.request.get('username')
-        logonData['password'] = self.request.get('password')
-
-        # find matching query
-        cursor = db.cursor()
-        cursor.execute("SELECT username FROM inmate WHERE username = %s and password = %s;",
-                       (logonData['username'], logonData['password']))
-        row = cursor.fetchone()
-        cursor.close()
-
-        # test that values are not null -- occurs only if no matching user and password
-        if row is not None:
-            # if not null render user splash page -- this page also will have session data, specifically the username
-            template_values = {'username': row[0]}
-            template = JINJA_ENVIRONMENT.get_template('splash.html')
-            #username is added to cookie. Can only be transferred over https.
-            self.response.set_cookie(key="username", value=row[0], secure=True)
-            self.response.write(template.render(template_values))
-
-        # if null redirect back to login page
-        else:
-            message = {'error': 'username and/or password do not match'}
-            template = JINJA_ENVIRONMENT.get_template('start.html')
-            self.response.write(template.render(message=message))
-
+        logonPost(self)
 
     def get(self):
-        """This end point displays the login page. It is also the redirect
-        if username and password cannot be validated"""
-        template = JINJA_ENVIRONMENT.get_template("start.html")
-        message = {}
-        self.response.write(template.render(message=message))
-
+        logonGet(self)
 
 
 class Store(webapp2.RequestHandler):
-    """"Used to process handle requests relating to the store"""
-    nav = {}
-    nav['homelink'] = HOME_LINK
-    nav['homelinktext'] = "Home"
-    nav['newuserlink'] = ADD_LINK
-    nav['newuserlinktext'] = "Add User"
-    nav['alluserslink'] = ALL_LINK
-    nav['alluserslinktext'] = "All Users"
-    nav['moduleslink'] = ALL_MODULES
-    nav['moduleslinktext'] = "Purchased Modules"
-    nav['checkout_link'] = BASEURL + "cart"
-    mess = {}
 
     def get(self):
-        """used to display the store"""
-        #connect to database
-        db = connect_to_cloudsql()
+        renderStorePage(self)
 
-        #make query
-        cursor = db.cursor()
-
-        cursor.execute("SELECT moduleID, module_name, module_summary FROM learning_module")
-        # parse query results into dict
-        if cursor is not None:
-            modules = []
-            for row in cursor:
-                module = {}
-                module['moduleID']  = int(row[0])
-                module['module_name'] = str(row[1])
-                module['module_summary'] = str(row[2])
-                modules.append(module)
-            template = JINJA_ENVIRONMENT.get_template("store.html")
-            self.response.write(template.render(modules=modules, nav=self.nav))
-        else:
-            self.response.write("You goofed it bad.")
 
 class ShoppingCart(webapp2.RequestHandler):
     def get(self):
         renderShoppingCart(self)
+
+
+class performCheckout(webapp2.RequestHandler):
+    def get(self):
+        doCheckout(self)
 
 # [END RequestHandlers]
 
@@ -545,5 +631,6 @@ app = webapp2.WSGIApplication([
     ('/purchased_modules', purchasedModules),
     ('/purchased_modules/([\w-]+)', ShowModule),
     ('/cart', ShoppingCart),
+    ('/cart/confirmCheckout', performCheckout),
 ], debug=True)
 # [END app]
