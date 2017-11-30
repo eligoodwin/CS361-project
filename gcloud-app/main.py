@@ -645,10 +645,21 @@ class Quizzler(webapp2.RequestHandler):
     def post(self):
         """displays the results for the user"""
         #get the moduleID from the cookie
+        # moduleID =self.request.cookies.get("currentModule")
+        # #get all the questions for that questions for that module, including questions ids
+        # db = connect_to_cloudsql()
+        # cursor = db.cursor()
+        # cursor.execute('SELECT questionID, answer FROM question WHERE moduleID = %s', [str(moduleID)])
+        # questions = []
+        # for row in cursor:
+        #     question = {}
+        #     question['id'] = int(row[0])
+        #     question['answer'] = str(row[1])
+        #     questions.append(question)
+        #parse the request
+        self.response.write(json.loads(self.request.body))
 
-        #get all the questions for that questions for that module, including questions ids
-
-        #test the results
+        # test the results
 
         #choose a response on if they got more than .8 correct
 

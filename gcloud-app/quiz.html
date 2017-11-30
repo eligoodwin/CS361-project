@@ -42,7 +42,6 @@
     <form method="post" name="quizform" action="/quiz"/>
     <ol>
         {% for question in questions %}
-
             <li>{{question.prompt}}
                 <p>
                 True
@@ -54,7 +53,7 @@
 
         {% endfor %}
     </ol>
-    <input value="Submit Answers" onclick="" type="button">
+    <input value="Submit Answers" type="submit">
     </form>
 
 
