@@ -169,7 +169,7 @@ def renderModule(self, id):
         module['data'] = str(row[2])
         module['summary'] = str(row[3])
         module['media'] = str(row[4])
-    cursorOne.close()
+    cursor.close()
 
 
     #insert current moduleID into cookie, display quie on another page.
@@ -628,21 +628,19 @@ class Quizzler(webapp2.RequestHandler):
         #make query for the questions using the moduleID
         db = connect_to_cloudsql()
         cursor = db.cursor()
-        cursor.execute(cursor.execute('SELECT * FROM question WHERE moduleID = %s', [str(moduleID)]))
+        cursor.execute('SELECT questionID, question FROM question WHERE moduleID = %s', [str(moduleID)])
 
         questions = []
         for row in cursor:
             question = {}
             question['id'] = int(row[0])
-            question['moduleID'] = str(row[1])
-            question['prompt'] = str(row[2])
-            question['answer'] = str(row[3])
+            question['prompt'] = str(row[1])
             questions.append(question)
         cursor.close()
 
         #render stuff
         template = JINJA_ENVIRONMENT.get_template('quiz.html')
-        self.response(template.render(questions=questions))
+        self.response.write(template.render(questions=questions))
 
     def post(self):
         """displays the results for the user"""
@@ -678,7 +676,7 @@ app = webapp2.WSGIApplication([
     ('/start.html', Logon),
     ('/logon', Logon),
     ('/all', ShowAll),
-    ('/takequiz', Quizzler),
+    ('/quiz', Quizzler),
     ('/purchased_modules', purchasedModules),
     ('/purchased_modules/([\w-]+)', ShowModule),
     ('/cart', ShoppingCart),
