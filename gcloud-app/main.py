@@ -147,7 +147,7 @@ def renderModule(self, id):
     # query the database and find the questions associated with the module
     db = connect_to_cloudsql()
     cursor = db.cursor()
-    cursor.execute('SELECT * FROM question WHERE moduleID = %s', [str(id),])
+    cursor.execute('SELECT * FROM question WHERE moduleID = %s', [str(id)])
     
     questions = []
     for row in cursor:
@@ -161,7 +161,7 @@ def renderModule(self, id):
     #cursorOne.close()
 
     # Query the database for the remaining information on the module
-    cursor.execute('SELECT * FROM learning_module')
+    cursor.execute('SELECT * FROM learning_module WHERE moduleID = %s', [str(id)])
 
     module = {}
     for row in cursor:
@@ -172,8 +172,8 @@ def renderModule(self, id):
         module['media'] = str(row[4])
     
     template = JINJA_ENVIRONMENT.get_template('module.html')
-    self.response.write(template.render(module=module, nav=nav, questions=questions))
-
+    #self.response.write(template.render(module=module, nav=nav, questions=questions))
+    self.response.write(json.dumps(module))
 
 ##############################################################################
 # Shows all users in the database in a table
