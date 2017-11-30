@@ -172,8 +172,8 @@ def renderModule(self, id):
         module['media'] = str(row[4])
     
     template = JINJA_ENVIRONMENT.get_template('module.html')
-    #self.response.write(template.render(module=module, nav=nav, questions=questions))
-    self.response.write(json.dumps(module))
+    self.response.write(template.render(module=module, nav=nav, questions=questions))
+    #self.response.write(json.dumps(module))
 
 ##############################################################################
 # Shows all users in the database in a table
