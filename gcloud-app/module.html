@@ -49,43 +49,12 @@
         <h2>Lecture</h2>
         <iframe width="560" height="315" src="{{module.media}}" frameborder="0" allowfullscreen></iframe>
     </div>
-    <h2>Quiz</h2>
-    <table class="table" style ='max-width: 150px'>
-    <tbody>
-        <form method="post" name="quizform" action="">
-            {% for question in questions %}
-            <input value = "{{question.answer}}" name = "{{question.id}}Answer" type = "hidden">
-            <tr>
-                <td colspan="100">{{question.prompt}}</td>
-            </tr>
-            <tr>
-                <td colspan="2"></td>
-                <td>
-                    <nobr>
-                        <input value="true" name="{{question.id}}" type ="radio">
-                        <b>A)</b>
-                    </nobr>
-                </td>
-                <td> True</td>
-            </tr>
-            <tr>
-                <td>
-                    <nobr>
-                        <input value="false" name="{{question.id}}" type ="radio">
-                        <b>B)</b>
-                    </nobr>
-                </td>
-                <td> False</td>
-            </tr>
-            {% endfor %}
-            <tr>
-                <div>
-                    <input value="Submit Answers" onclick="" type="button">
-                </div>
-            </tr>
-        </form>
-    </tbody>
-    </table>
+    <button id="takeQuiz" type="button">Take Quiz</button>
+    <script>
+        document.getElementById("takeQuiz").addEventListener("click", function(event){
+            window.location.href = "/takeQuiz";
+        });
+    </script>
   </body>
 </html>
 {% endautoescape %}

@@ -158,7 +158,6 @@ def renderModule(self, id):
         question['answer'] = str(row[3])
         questions.append(question)
     
-    #cursorOne.close()
 
     # Query the database for the remaining information on the module
     cursor.execute('SELECT * FROM learning_module WHERE moduleID = %s', [str(id)])
@@ -170,7 +169,11 @@ def renderModule(self, id):
         module['data'] = str(row[2])
         module['summary'] = str(row[3])
         module['media'] = str(row[4])
-    
+    cursorOne.close()
+
+
+    #insert current moduleID into cookie, display quie on another page.
+    self.response.set_cookie(key="currentModule", value=id)
     template = JINJA_ENVIRONMENT.get_template('module.html')
     self.response.write(template.render(module=module, nav=nav, questions=questions))
     #self.response.write(json.dumps(module))
@@ -617,6 +620,53 @@ class performCheckout(webapp2.RequestHandler):
     def get(self):
         doCheckout(self)
 
+class Quizzler(webapp2.RequestHandler):
+    def get(self):
+        """displays the quiz for the user"""
+        #get the moduleID from the cookie
+        moduleID = self.request.cookies.get("currentModule")
+        #make query for the questions using the moduleID
+        db = connect_to_cloudsql()
+        cursor = db.cursor()
+        cursor.execute(cursor.execute('SELECT * FROM question WHERE moduleID = %s', [str(moduleID)]))
+
+        questions = []
+        for row in cursor:
+            question = {}
+            question['id'] = int(row[0])
+            question['moduleID'] = str(row[1])
+            question['prompt'] = str(row[2])
+            question['answer'] = str(row[3])
+            questions.append(question)
+        cursor.close()
+
+        #render stuff
+        template = JINJA_ENVIRONMENT.get_template('quiz.html')
+        self.response(template.render(questions=questions))
+
+    def post(self):
+        """displays the results for the user"""
+        #get the moduleID from the cookie
+
+        #get all the questions for that questions for that module, including questions ids
+
+        #test the results
+
+        #choose a response on if they got more than .8 correct
+
+        #if more than .8 display the page with the correct answers markign the wrong ones
+        # with redirect to the learning mondules page
+
+        #resset current module cookie before redirect
+
+        #if they got less than .8 correct, have a link to go back to the module homepage and
+        #another to take the module over again
+
+
+
+
+
+
 # [END RequestHandlers]
 
 # [START app]
@@ -628,6 +678,7 @@ app = webapp2.WSGIApplication([
     ('/start.html', Logon),
     ('/logon', Logon),
     ('/all', ShowAll),
+    ('/takequiz', Quizzler),
     ('/purchased_modules', purchasedModules),
     ('/purchased_modules/([\w-]+)', ShowModule),
     ('/cart', ShoppingCart),
