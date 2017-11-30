@@ -27,6 +27,9 @@ import datetime
 import json
 import random
 import string
+import urlparse
+
+
 BASEURL = "https://prisonerlearning.appspot.com/"
 #BASEURL   = "https://cs361project.appspot.com/"
 HOME_LINK = BASEURL
@@ -628,7 +631,7 @@ class Quizzler(webapp2.RequestHandler):
         #make query for the questions using the moduleID
         db = connect_to_cloudsql()
         cursor = db.cursor()
-        cursor.execute('SELECT questionID, question FROM question WHERE moduleID = %s', [str(moduleID)])
+        cursor.execute('SELECT questionID, question FROM question WHERE moduleID = %s ORDER BY questionID', [str(moduleID)])
 
         questions = []
         for row in cursor:
@@ -645,34 +648,52 @@ class Quizzler(webapp2.RequestHandler):
     def post(self):
         """displays the results for the user"""
         #get the moduleID from the cookie
-        # moduleID =self.request.cookies.get("currentModule")
-        # #get all the questions for that questions for that module, including questions ids
-        # db = connect_to_cloudsql()
-        # cursor = db.cursor()
-        # cursor.execute('SELECT questionID, answer FROM question WHERE moduleID = %s', [str(moduleID)])
-        # questions = []
-        # for row in cursor:
-        #     question = {}
-        #     question['id'] = int(row[0])
-        #     question['answer'] = str(row[1])
-        #     questions.append(question)
-        #parse the request
-        self.response.write(json.loads(self.request.body))
+        moduleID =self.request.cookies.get("currentModule")
+        #get all the questions for that questions for that module, including questions ids
+        db = connect_to_cloudsql()
+        cursor = db.cursor()
+        cursor.execute('SELECT questionID, answer FROM question WHERE moduleID = %s ORDER BY questionID', [str(moduleID)])
+        questions = []
+        for row in cursor:
+            question = {}
+            question['id'] = int(row[0])
+            question['answer'] = str(row[1])
+            questions.append(question)
 
-        # test the results
+        #parse the request
+        answered = urlparse.parse_qs(self.request.body)
+
+        # url parse converts the url into a json string, we need a json array
+        keys = answered.keys()
+        fixed = []
+        for key in keys:
+            fix = {}
+            fix[key] = answered[key]
+            fixed.append(fix)
+
+        results = 0
+        for i in range(len(questions)):
+            if fixed[i][str(questions[i]['id'])][0] == questions[i]['answer']:
+                results += 1
+
+        score = float(results) / len(questions)
+        stringScore = "{0:.2f}".format(score * 100) + "%"
+        #get the module name
+        cursor.execute('SELECT module_name FROM learning_module where moduleID=%s', [str(moduleID)])
+        row = cursor.fetchone()
+        moduleName = row[0]
 
         #choose a response on if they got more than .8 correct
+        message = {}
+        message['moduleName'] = moduleName
+        message['score'] = stringScore
+        if score >= .8:
+            message['passed'] = True
+        else:
+            message['passed'] = False
 
-        #if more than .8 display the page with the correct answers markign the wrong ones
-        # with redirect to the learning mondules page
-
-        #resset current module cookie before redirect
-
-        #if they got less than .8 correct, have a link to go back to the module homepage and
-        #another to take the module over again
-
-
-
+        template = JINJA_ENVIRONMENT.get_template('quizResults.html')
+        self.response.write(template.render(message = message))
 
 
 
