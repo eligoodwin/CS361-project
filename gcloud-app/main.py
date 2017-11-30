@@ -88,6 +88,7 @@ def connect_to_cloudsql():
 # (2) show all users
 ##############################################################################
 def renderHomePage(self):
+    loggedOn = False
     nav = {}
     nav['logonlink'] = LOGON
     nav['logonlinktext'] = "Logon"
@@ -97,10 +98,17 @@ def renderHomePage(self):
     nav['newuserlinktext'] = "Add User"
     nav['alluserslink'] = ALL_LINK 
     nav['alluserslinktext'] = "All Users"
-    nav['moduleslink'] = ALL_MODULES
-    nav['moduleslinktext'] = "Purchased Modules"
+
+    username = self.request.cookies.get("username")
+    if username is not None:
+        loggedOn = True
+        nav['moduleslink'] = ALL_MODULES
+        nav['moduleslinktext'] = "Purchased Modules"
+        nav['storelink'] = "/store"
+        nav['storelinktext'] = "Module Store"
+
     template = JINJA_ENVIRONMENT.get_template('MainPage.html')
-    self.response.write(template.render(nav=nav))
+    self.response.write(template.render(nav=nav, loggedOn=loggedOn))
 
 
 ##############################################################################

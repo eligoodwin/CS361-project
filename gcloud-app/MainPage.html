@@ -54,6 +54,11 @@
           <li role="presentation">
             <a href="{{ nav.moduleslink }}">{{ nav.moduleslinktext }}</a>
           </li>
+          {% if loggedOn == True %}
+            <li role="presentation">
+            <a href="{{ nav.storelink }}">{{ nav.storelinktext }}</a>
+          </li>
+          {% endif %}
         </ul>
     </nav> 
   </body>
