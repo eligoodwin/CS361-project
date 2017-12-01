@@ -537,28 +537,35 @@ def renderStorePage(self):
     nav['moduleslinktext'] = "Purchased Modules"
     nav['checkout_link'] = BASEURL + "cart"
     mess = {}
-    
+
+
     """used to display the store"""
     #connect to database
     db = connect_to_cloudsql()
 
+    username = self.request.cookies.get("username")
     #make query
     cursor = db.cursor()
+    cursor.execute("SELECT DISTINCT lm.moduleID, lm.module_name, lm.module_summary FROM learning_module " +\
+                   "lm WHERE lm.moduleID NOT IN (SELECT lm.moduleID FROM learning_module lm " +\
+                    "INNER JOIN purchased_resources pr ON lm.moduleID = pr.moduleID " +\
+                   "INNER JOIN inmate i ON pr.inmateID = i.id WHERE i.username = %s)", [username])
+    modules = []
+    template = JINJA_ENVIRONMENT.get_template("store.html")
+    test = cursor.fetchone()
+    if test is None:
+        self.response.write(template.render(availablemodules=False, modules=modules, nav=nav))
+        return
 
-    cursor.execute("SELECT moduleID, module_name, module_summary FROM learning_module")
     # parse query results into dict
-    if cursor is not None:
-        modules = []
+    else:
         for row in cursor:
             module = {}
             module['moduleID']  = int(row[0])
             module['module_name'] = str(row[1])
             module['module_summary'] = str(row[2])
             modules.append(module)
-        template = JINJA_ENVIRONMENT.get_template("store.html")
-        self.response.write(template.render(modules=modules, nav=nav))
-    else:
-        self.response.write("You goofed it bad.")
+        self.response.write(template.render(availablemodules=True, modules=modules, nav=nav))
 
 
 # [START RequestHandlers]

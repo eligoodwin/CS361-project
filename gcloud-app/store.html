@@ -60,7 +60,7 @@
           </li>
         </ul>
     </nav>
-
+    {% if availablemodules == True %}
     <H3>Available Modules to Purchase</h3>
         <p>Add modules to your cart for purchase</p>
         <ul>
@@ -89,7 +89,6 @@
                     });
                 </script>
             </li>
-
         {% endfor %}
         </ul>
         <button id="checkout" type="button">Checkout</button>
@@ -105,8 +104,14 @@
                 window.location.href ="{{ nav.checkout_link }}";
             });
         </script>
-
-
+    {% else %}
+        <h3>You have purchased all modules</h3>
+        <p>There are no available modules for you to purchase. Perhaps </p>
+        <ul>
+            <li><a href="/purchased_modules">Purchased Modules</a></li>
+            <li><a href="/">Main Page</a></li>
+        </ul>
+    {% endif %}
 
 
   </body>

@@ -37,7 +37,7 @@
 </head>
 <body>
     <h1>Quiz</h1>
-    <p>This is the quize of your module. All questions are True or False. Once you have answered all questions to your ability you may submit the quize of scoring.</p>
+    <p>This is the quiz for your module. All questions are True or False. Once you have answered all questions you may submit the quiz for scoring.</p>
 
     <form method="post" name="quizform" action="/quiz"/>
     <ol>
@@ -45,9 +45,9 @@
             <li>{{question.prompt}}
                 <p>
                 True
-                <input value="1" name="{{question.id}}" type ="radio">
+                <input value="1" name="{{question.id}}" type ="radio" required>
                 False
-                <input value="0" name="{{question.id}}" type ="radio">
+                <input value="0" name="{{question.id}}" type ="radio" required>
                 </p>
             </li>
 
