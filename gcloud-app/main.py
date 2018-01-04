@@ -31,7 +31,6 @@ import urlparse
 
 
 BASEURL = "https://prisonerlearning.appspot.com/"
-#BASEURL   = "https://cs361project.appspot.com/"
 HOME_LINK = BASEURL
 ALL_LINK  = BASEURL + "all"
 ADD_LINK  = BASEURL + "prisoner"
@@ -337,22 +336,6 @@ def deleteUser(self, id):
     db.commit()
     db.close()
 
-    mess = {}
-    mess['header'] = "User Removed from Database"
-
-    nav = {}
-    nav['homelink'] = HOME_LINK 
-    nav['homelinktext'] = "Home"
-    nav['newuserlink'] = ADD_LINK 
-    nav['newuserlinktext'] = "Add User"
-    nav['alluserslink'] = ALL_LINK 
-    nav['alluserslinktext'] = "All Users"
-    nav['moduleslink'] = ALL_MODULES
-    nav['moduleslinktext'] = "Purchased Modules"
-
-    template = JINJA_ENVIRONMENT.get_template('deleteSuccess.html')
-    self.response.write(template.render(nav=nav, mess=mess))
-
 def renderLogon(self):
     """This end point displays the login page. It is also the redirect
     if username and password cannot be validated"""
@@ -552,18 +535,23 @@ def renderStorePage(self):
                    "INNER JOIN inmate i ON pr.inmateID = i.id WHERE i.username = %s)", [username])
     modules = []
     template = JINJA_ENVIRONMENT.get_template("store.html")
-    test = cursor.fetchone()
-    if test is None:
+    test = cursor
+
+    if test.fetchone() is None:
         self.response.write(template.render(availablemodules=False, modules=modules, nav=nav))
         return
 
     # parse query results into dict
     else:
+        cursor.execute("SELECT DISTINCT lm.moduleID, lm.module_name, lm.module_summary FROM learning_module " +\
+                   "lm WHERE lm.moduleID NOT IN (SELECT lm.moduleID FROM learning_module lm " +\
+                    "INNER JOIN purchased_resources pr ON lm.moduleID = pr.moduleID " +\
+                   "INNER JOIN inmate i ON pr.inmateID = i.id WHERE i.username = %s)", [username])
         for row in cursor:
             module = {}
-            module['moduleID']  = int(row[0])
-            module['module_name'] = str(row[1])
-            module['module_summary'] = str(row[2])
+            module['moduleID']  = row[0]
+            module['module_name'] = row[1]
+            module['module_summary'] = row[2]
             modules.append(module)
         self.response.write(template.render(availablemodules=True, modules=modules, nav=nav))
 
@@ -710,6 +698,39 @@ class Quizzler(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('quizResults.html')
         self.response.write(template.render(message = message))
 
+class AdminLogon(webapp2.RequestHandler):
+    def post(self):
+        db = connect_to_cloudsql()
+
+        #get admin creds
+        logonData = {}
+        logonData['username'] = self.request.get('username')
+        logonData['password'] = self.request.get('password')
+
+        cursor = db.cursor()
+        cursor.execute("SELECT username FROM admin WHERE username = %s AND password = %s;",
+                       (logonData['username'], logonData['password']))
+        row = cursor.fetchone()
+        cursor.close()
+
+        if row is not None:
+            #render admin hompage
+            template_values = {'username': row[0]}
+            template = JINJA_ENVIRONMENT.get_template('adminsSplash.html')
+            self.response.set(key="username", value=row[0], secure=True)
+            self.response.write(template.render(template_values))
+
+        else:
+            message = {'error': 'username and/or password do not macth'}
+            template = JINJA_ENVIRONMENT.get_template('adminStart.html')
+            self.response.write(template.render(message=message))
+
+
+    def get(self):
+        """if admin cannot be validated"""
+        template = JINJA_ENVIRONMENT.get_template("adminStart.hmtl")
+        message = {}
+        self.response.write(template.render(message=message))
 
 
 # [END RequestHandlers]
@@ -728,5 +749,6 @@ app = webapp2.WSGIApplication([
     ('/purchased_modules/([\w-]+)', ShowModule),
     ('/cart', ShoppingCart),
     ('/cart/confirmCheckout', performCheckout),
+    ('/adminlogon', AdminLogon),
 ], debug=True)
 # [END app]

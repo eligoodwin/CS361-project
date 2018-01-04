@@ -82,6 +82,8 @@
     moduleIDs.push(document.getElementById("{{module.id}}").id);
     document.getElementById("{{ module.id }}").addEventListener("click",
       function() {
+        removedButton = document.getElementById("{{ module.id }}");
+
         document.getElementById("{{ module.id }}").innerHTML = "Removed From Cart";
 
         console.log("moduleIDs before removal: ");
@@ -89,7 +91,7 @@
 
         // remove the id from the list of modules
         moduleIDs.splice(moduleIDs.indexOf(document.getElementById("{{module.id }}").id), 1);
-
+        removedButton.style.background.color='red';
         console.log("moduleIDs after removal: ");
         console.log(moduleIDs);
 

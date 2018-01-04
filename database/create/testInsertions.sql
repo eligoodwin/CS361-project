@@ -9,3 +9,7 @@ Step 6: Put the bag somewhere warm and safe -- maybe the toilet, maybe a sink, m
 Step 6.5: Oh sh*t! Yeah, so there's gonna be some gas as this turns into booze. Make sure to leave the bag open a tiny crack or else your Ziploc bag's gonna turn into a tropical time-bomb, which is what got you here in the first place.\n
 Step 7: After about a week, strain the nasty fruit goop. If you can't find a strainer, just shank the bag a bunch of times and... voila! DIY strainer.\n",
 "Do you want to get turnt up? Gotcha fam, just make some toilet wine.");
+
+
+
+INSERT INTO admin (fname, lname, username,password) VALUES ("eli", "goodwin", "elirgoodwin", "herpderp!2");

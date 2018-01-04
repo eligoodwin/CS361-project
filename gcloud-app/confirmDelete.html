@@ -2,6 +2,7 @@
 {% autoescape true %}
 <html>
   <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <!-- [START css] -->
     <link type="text/css" rel="stylesheet" href="/bootstrap/css/bootstrap.css">
     <link type="text/css" rel="stylesheet" href="/bootstrap/css/bootstrap-responsive.css">
@@ -51,10 +52,26 @@
     </nav>
     <div>
       <h2>{{ mess.warning }}</h2>
-          <form method="POST" action="{{ link.deleteLink }}">
-            <button class="btn btn-danger" type="submit">{{ mess.buttonText }}
-            </button>
-          </form>
+        <p>Deleting the user will permanently remove them from the database along with all of their purchases and module progress.</p>
+            <button class="btn btn-danger" id="deleteUser" type="button">Delete User</button>
+            <button class="btn btn-primary" id="returnToAll" type="button">Cancel and Return to All Users</button>
+            <script>
+              $('#returnToAll').click(function(){
+                  location.href ='/all';
+              });
+
+              $('#deleteUser').click(function(event){
+                  event.preventDefault();
+                  $.post("{{ link.deleteLink }}", function(){});
+                  $('#deleteUser').removeClass().addClass("btn btn-success").text("User successfully deleted");
+                  $('#postRemove').text("Redirecting to all users...");
+                  setTimeout(function(){
+                      window.location="/all";
+                  }, 3000);
+              });
+
+            </script>
+      <p id="postRemove"></p>
     </div>
   </body>
 </html>

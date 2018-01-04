@@ -2,6 +2,8 @@
 {% autoescape true %}
 <html>
   <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
     <!-- [START css] -->
     <link type="text/css" rel="stylesheet" href="/bootstrap/css/bootstrap.css">
     <link type="text/css" rel="stylesheet" href="/bootstrap/css/bootstrap-responsive.css">
@@ -44,9 +46,9 @@
         </ul>
     </nav>  
   <h2>Add a New User</h2>
-  <form method="POST" action="/prisoner">
+  <form id="prisonerForm">
     <div class="form-group">
-      <label for="fname">First Name</label>
+      <label for="name">First Name</label>
       <input type="text" name="fname" class="form-control" id="firstname" placeholder="Enter First Name">
     </div>
     <div class="form-group">
@@ -65,7 +67,28 @@
       <label for="wallet">Initial Wallet Balance</label>
       <input type="number" name="wallet" class="form-control" id="wallet" placeholder="Balance" >
     </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
+  <button id="submitButton" type="submit" class="btn btn-primary">Submit</button>
+    <script>
+
+        $('#prisonerForm').on("submit", function(event){
+          event.preventDefault();
+          $.ajax({
+              type: "POST",
+              url: "/prisoner",
+              data: $('#prisonerForm').serialize(),
+              success: function(){
+                  $('#submitButton').removeClass().addClass("btn btn-success").text("User added to database");
+                  setTimeout(function(){
+                      $('#prisonerForm')[0].reset();
+                      $('#submitButton').removeClass().addClass("btn btn-primary").text("Add a new user");
+                  }, 3000);
+              }
+          });
+          return false;
+      });
+
+    </script>
+
 </form>
   </body>
 </html>

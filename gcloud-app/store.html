@@ -68,24 +68,40 @@
             <li>
                 <h4>{{module.module_name}}</h4>
                 <p>{{module.module_summary}}</p>
-                <button id="{{module.moduleID}}" type="button"> Add Module To Cart</button>
+                <button id="{{module.moduleID}}" type="button" class="btn btn-primary"> Add Module To Cart</button>
                 <script>
                     //add items to cart and test if they exist in the cart or not
                     document.getElementById("{{module.moduleID}}").addEventListener("click", function(){
-                        var itemToAdd = document.getElementById("{{module.moduleID}}").id;
+                        var button = document.getElementById("{{module.moduleID}}");
+                        var itemToAdd = button.id;
+                        var buttonInnerHTML= button.innerHTML;
                         console.log("Item to add: " + itemToAdd);
-
-                        if(!(shoppingCart.includes(itemToAdd))){
-                            shoppingCart.push(itemToAdd);
-                            for(var i = 0; i < shoppingCart.length; ++i){
-                                console.log("Item in cart is: " + shoppingCart[i]);
+                        const removeFromCart = "Remove From Cart";
+                        const addToCart = "Add Module To Cart";
+                        //if item has been added to cart
+                        if(buttonInnerHTML === removeFromCart){
+                            //search for item to remove from array
+                            var indexToRemove = shoppingCart.indexOf(itemToAdd);
+                            if(indexToRemove > -1){
+                                shoppingCart.splice(indexToRemove, 1);
                             }
-
+                            button.innerHTML = addToCart;
+                            button.className = "btn btn-primary";
+                            console.log("current items in cart: " + shoppingCart);
                         }
                         else{
-                            console.log(itemToAdd + " is already in cart");
+                            if(!(shoppingCart.includes(itemToAdd))){
+                                shoppingCart.push(itemToAdd);
+                                for(var i = 0; i < shoppingCart.length; ++i){
+                                        console.log("Item in cart is: " + shoppingCart[i]);
+                                }
+                                button.innerHTML = removeFromCart;
+                                button.className = "btn btn-danger";
+                            }
+                            else{
+                                console.log(itemToAdd + " is already in cart");
+                            }
                         }
-                      document.getElementById("{{module.moduleID}}").innerHTML = "Added to Cart";
                     });
                 </script>
             </li>
@@ -95,13 +111,18 @@
         <script>
             document.getElementById("checkout").addEventListener("click",
               function(event){
-                //make list into a string with CSV
-                var shoppingList = shoppingCart.join('|');
-                //to cookie
-                document.cookie = "shoppingList=" + shoppingList;
-
-                //redirect to the next page -- temporarily set to google
-                window.location.href ="{{ nav.checkout_link }}";
+                //if the shopping cart is empty do not allow the user user to progress
+                  if(shoppingCart.length === 0){
+                      event.preventDefault();
+                      alert("You cannot check out because your cart is empty");
+                  }
+                  else{
+                      //make list into a string with CSV
+                    var shoppingList = shoppingCart.join('|');
+                    //to cookie
+                    document.cookie = "shoppingList=" + shoppingList;
+                    //redirect to the next page -- temporarily set to google
+                    window.location.href ="{{ nav.checkout_link }}";}
             });
         </script>
     {% else %}
