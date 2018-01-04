@@ -193,14 +193,11 @@ def renderModule(self, id):
 ##############################################################################
 def showAllUsers(self):
     nav = {}
-    nav['homelink'] = HOME_LINK 
-    nav['homelinktext'] = "Home"
-    nav['newuserlink'] = ADD_LINK 
-    nav['newuserlinktext'] = "Add User"
-    nav['alluserslink'] = ALL_LINK 
-    nav['alluserslinktext'] = "All Users"
-    nav['moduleslink'] = ALL_MODULES
-    nav['moduleslinktext'] = "Purchased Modules"
+    nav['homelink'] = "/adminSplash.html"
+    nav['home'] = "Admin Home"
+    nav['addUserLink'] = "/prisoner"
+    nav['addUser'] = "Add User"
+
 
     db = connect_to_cloudsql()
     cursor = db.cursor()
