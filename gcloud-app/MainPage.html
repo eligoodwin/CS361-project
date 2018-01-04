@@ -33,31 +33,23 @@
       }
     </style>
     <title>
-      E-Learning for Prison Inmates - Admin Homepage
+      E-Learning for Prison Inmates
     </title>
   </head>
   <body>
     <nav>
         <ul class="nav nav-pills">
-          <li role="presentation">
-            <a href="{{ nav.logonlink }}">{{ nav.logonlinktext }}</a>
-          </li>
-          <li role="presentation">
-            <a href="{{ nav.homelink }}">{{ nav.homelinktext }}</a>
-          </li>
-          <li role="presentation">
-            <a href="{{ nav.newuserlink }}">{{ nav.newuserlinktext }}</a>
-          </li>
-          <li role="presentation">
-            <a href="{{ nav.alluserslink }}">{{ nav.alluserslinktext }}</a>
-          </li>
-          <li role="presentation">
-            <a href="{{ nav.moduleslink }}">{{ nav.moduleslinktext }}</a>
-          </li>
           {% if loggedOn == True %}
             <li role="presentation">
-            <a href="{{ nav.storelink }}">{{ nav.storelinktext }}</a>
-          </li>
+              <a href="{{ nav.storelink }}">{{ nav.storelinktext }}</a>
+            </li>
+            <li role="presentation">
+              <a href="{{ nav.moduleslink }}">{{ nav.moduleslinktext }}</a>
+            </li>
+          {% else %}
+            <li role="presentation">
+              <a href="{{ nav.logonLink }}">{{ nav.logonText}}</a>
+            </li>
           {% endif %}
         </ul>
     </nav> 

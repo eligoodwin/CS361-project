@@ -89,14 +89,8 @@ def connect_to_cloudsql():
 def renderHomePage(self):
     loggedOn = False
     nav = {}
-    nav['logonlink'] = LOGON
-    nav['logonlinktext'] = "Logon"
-    nav['homelink'] = HOME_LINK 
-    nav['homelinktext'] = "Home"
-    nav['newuserlink'] = ADD_LINK 
-    nav['newuserlinktext'] = "Add User"
-    nav['alluserslink'] = ALL_LINK 
-    nav['alluserslinktext'] = "All Users"
+    nav['logonLink'] = "/start.html"
+    nav['logonText'] = "Logon"
 
     username = self.request.cookies.get("username")
     if username is not None:
@@ -115,12 +109,9 @@ def renderHomePage(self):
 ##############################################################################
 def renderPurchasedModules(self, username):
     nav = {}
-    nav['homelink'] = HOME_LINK
+    nav['homelink'] = "/"
     nav['homelinktext'] = "Home"
-    nav['newuserlink'] = ADD_LINK
-    nav['newuserlinktext'] = "Add User"
-    nav['alluserslink'] = ALL_LINK
-    nav['alluserslinktext'] = "All Users"
+
     
     print(username)
     
@@ -593,7 +584,6 @@ class Logon(webapp2.RedirectHandler):
 
 
 class Store(webapp2.RequestHandler):
-
     def get(self):
         renderStorePage(self)
 
