@@ -230,12 +230,11 @@ def showAllUsers(self):
 ##############################################################################
 def renderAddUser(self):
     nav = {}
-    nav['homelink'] = HOME_LINK
-    nav['homelinktext'] = "Home"
-    nav['alluserslink'] = ALL_LINK
-    nav['alluserslinktext'] = "All Users"
-    nav['moduleslink'] = ALL_MODULES
-    nav['moduleslinktext'] = "Purchased Modules"
+    nav['homelink'] = "/adminSplash.html"
+    nav['homelinktext'] = "Admin Home"
+    nav['alluserslink'] = "/all"
+    nav['alluserslinktext'] = "View All Users"
+
     template = JINJA_ENVIRONMENT.get_template('adduser.html')
     self.response.write(template.render(nav=nav))
 
@@ -284,21 +283,6 @@ def addNewUser(self):
     db.commit()
     db.close()
 
-    nav = {}
-    nav['homelink'] = HOME_LINK 
-    nav['homelinktext'] = "Home"
-    nav['newuserlink'] = ADD_LINK 
-    nav['newuserlinktext'] = "Add User"
-    nav['alluserslink'] = ALL_LINK 
-    nav['alluserslinktext'] = "All Users"
-    nav['moduleslink'] = ALL_MODULES
-    nav['moduleslinktext'] = "Purchased Modules"
-
-    mess = {}
-    mess['success'] = "User Added to Database"
-
-    template = JINJA_ENVIRONMENT.get_template('addsuccess.html')
-    self.response.write(template.render(nav=nav, mess=mess))
 
 
 ##############################################################################
@@ -715,22 +699,45 @@ class AdminLogon(webapp2.RequestHandler):
 
         if row is not None:
             #render admin hompage
-            template_values = {'username': row[0]}
-            template = JINJA_ENVIRONMENT.get_template('adminsSplash.html')
-            self.response.set(key="username", value=row[0], secure=True)
-            self.response.write(template.render(template_values))
+            nav = {}
+            nav['allUsersLink'] = "/all"
+            nav['allUsers'] = 'View All Users'
+            nav['addUserLink'] = '/prisoner'
+            nav['addUser'] = "Add User"
+
+            username = row[0]
+            template = JINJA_ENVIRONMENT.get_template('adminsplash.html')
+            self.response.set_cookie(key="username", value=username, secure=True)
+            self.response.write(template.render(nav=nav, username=username))
 
         else:
             message = {'error': 'username and/or password do not macth'}
-            template = JINJA_ENVIRONMENT.get_template('adminStart.html')
+            template = JINJA_ENVIRONMENT.get_template("adminlogon.html")
             self.response.write(template.render(message=message))
 
 
     def get(self):
         """if admin cannot be validated"""
-        template = JINJA_ENVIRONMENT.get_template("adminStart.hmtl")
+        template = JINJA_ENVIRONMENT.get_template("adminlogon.html")
         message = {}
         self.response.write(template.render(message=message))
+
+
+class AdminSplash(webapp2.RequestHandler):
+    def get(self):
+        nav = {}
+        nav['allUsersLink'] = "/all"
+        nav['allUsers'] = 'View All Users'
+        nav['addUserLink'] = '/prisoner'
+        nav['addUser'] = "Add User"
+
+        username = self.request.cookies.get("username")
+
+        template = JINJA_ENVIRONMENT.get_template("adminsplash.html")
+        self.response.write(template.render(nav=nav, username=username))
+
+
+
 
 
 # [END RequestHandlers]
@@ -750,5 +757,6 @@ app = webapp2.WSGIApplication([
     ('/cart', ShoppingCart),
     ('/cart/confirmCheckout', performCheckout),
     ('/adminlogon', AdminLogon),
+    ('/adminSplash.html', AdminSplash),
 ], debug=True)
 # [END app]
