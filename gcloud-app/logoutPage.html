@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-{% autoescape true %}
-<html>
-  <head>
-    <!-- [START css] -->
+<html lang="en">
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+
+        <!-- [START css] -->
     <link type="text/css" rel="stylesheet" href="/bootstrap/css/bootstrap.css">
     <link type="text/css" rel="stylesheet" href="/bootstrap/css/bootstrap-responsive.css">
     <!-- [END css] -->
@@ -31,34 +33,25 @@
         overflow: scroll;
       }
     </style>
-  </head>
-  <body>
+
+    <meta charset="UTF-8">
+    <title>Loggged Out of Prisoner Learning</title>
+
+</head>
+<body>
     <nav>
         <ul class="nav nav-pills">
-          <li role="presentation">
-            <a href="{{ nav.homelink }}">{{ nav.homelinktext }}</a>
-          </li>
             <li role="presentation">
-            <a href="{{ nav.logoutLink }}">{{ nav.logoutText }}</a>
-          </li>
+                <a href="{{ nav.homeLink }}">{{ nav.homeText }}</a>
+            </li>
         </ul>
     </nav>
-    <h1>{{module.title}}</h1>
-     <div>
-        <h2>Reading Material:</h2>
-        <p>{{module.data}}</p>
-    </div>
-    <div>
-        <h2>Lecture</h2>
-        <iframe width="560" height="315" src="{{module.media}}" frameborder="0" allowfullscreen></iframe>
-    </div>
-    <button id="takeQuiz" type="button">Take Quiz</button>
+    <h1>
+        {{ username }} you are now logged out. Click home to return to the homepage.
+    </h1>
     <script>
-        document.getElementById("takeQuiz").addEventListener("click", function(event){
-            window.location.href = "/quiz";
-        });
+        const endTime = 'Fri, 01 Jan 1971 12:00:00 GMT';
+        document.cookie += ';expires=' + endTime + ';path=/;';
     </script>
-  </body>
+</body>
 </html>
-{% endautoescape %}
-

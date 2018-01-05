@@ -28,6 +28,7 @@ import json
 import random
 import string
 import urlparse
+import datetime
 
 
 BASEURL = "https://prisonerlearning.appspot.com/"
@@ -99,6 +100,8 @@ def renderHomePage(self):
         nav['moduleslinktext'] = "Purchased Modules"
         nav['storelink'] = "/store"
         nav['storelinktext'] = "Module Store"
+        nav['logoutLink'] = '/logout.html'
+        nav['logoutText'] = 'Logout'
 
     template = JINJA_ENVIRONMENT.get_template('MainPage.html')
     self.response.write(template.render(nav=nav, loggedOn=loggedOn))
@@ -111,6 +114,8 @@ def renderPurchasedModules(self, username):
     nav = {}
     nav['homelink'] = "/"
     nav['homelinktext'] = "Home"
+    nav['logoutLink'] = '/logout.html'
+    nav['logoutText'] = 'Logout'
 
     
     print(username)
@@ -140,10 +145,12 @@ def renderPurchasedModules(self, username):
 ##############################################################################
 def renderModule(self, id):
     nav = {}
-    nav['homelink'] = HOME_LINK
+    nav['homelink'] = '/'
     nav['homelinktext'] = "Home"
     nav['moduleslink'] = ALL_MODULES
     nav['moduleslinktext'] = "Purchased Modules"
+    nav['logoutLink'] = '/logout.html'
+    nav['logoutText'] = 'Logout'
  
     # query the database and find the questions associated with the module
     db = connect_to_cloudsql()
@@ -188,7 +195,8 @@ def showAllUsers(self):
     nav['home'] = "Admin Home"
     nav['addUserLink'] = "/prisoner"
     nav['addUser'] = "Add User"
-
+    nav['logoutLink'] = '/logout.html'
+    nav['logoutText'] = 'Logout'
 
     db = connect_to_cloudsql()
     cursor = db.cursor()
@@ -222,6 +230,8 @@ def renderAddUser(self):
     nav['homelinktext'] = "Admin Home"
     nav['alluserslink'] = "/all"
     nav['alluserslinktext'] = "View All Users"
+    nav['logoutLink'] = '/logout.html'
+    nav['logoutText'] = 'Logout'
 
     template = JINJA_ENVIRONMENT.get_template('adduser.html')
     self.response.write(template.render(nav=nav))
@@ -274,30 +284,6 @@ def addNewUser(self):
 
 
 ##############################################################################
-# renders the page which asks the user to confirm they wish to
-# delete the user with ID = 'id'
-##############################################################################
-def renderConfirmDelete(self, id):
-    nav = {}
-    nav['homelink'] = HOME_LINK 
-    nav['homelinktext'] = "Home"
-    nav['newuserlink'] = ADD_LINK 
-    nav['newuserlinktext'] = "Add User"
-    nav['alluserslink'] = ALL_LINK 
-    nav['alluserslinktext'] = "All Users"
-    nav['moduleslink'] = ALL_MODULES
-    nav['moduleslinktext'] = "Purchased Modules"
-    mess = {}
-    mess['warning'] = "Are you sure you want to delete the " + \
-            "user with ID: " + str(id) + "?"
-    mess['buttonText'] = "Yes"
-    link = {}
-    link['deleteLink'] = BASEURL + "prisoner/" + str(id) 
-    template = JINJA_ENVIRONMENT.get_template('confirmDelete.html')
-    self.response.write(template.render(mess=mess, link=link, nav=nav))
-
-
-##############################################################################
 # removes the user with ID = 'id' from the database then
 # renders the page confirming the delete took place
 ##############################################################################
@@ -322,18 +308,18 @@ def renderLogon(self):
 def renderShoppingCart(self):
     # navigation links
     nav = {}
-    nav['logonlink'] = LOGON
-    nav['logonlinktext'] = "Logon"
-    nav['homelink'] = HOME_LINK 
+
+    nav['homelink'] = '/'
     nav['homelinktext'] = "Home"
     nav['newuserlink'] = ADD_LINK 
     nav['newuserlinktext'] = "Add User"
-    nav['alluserslink'] = ALL_LINK 
-    nav['alluserslinktext'] = "All Users"
     nav['moduleslink'] = ALL_MODULES
     nav['moduleslinktext'] = "Purchased Modules"
 
     nav['confirm_checkout_link'] = BASEURL + "cart/confirmCheckout"
+
+    nav['logoutLink'] = '/logout.html'
+    nav['logoutText'] = 'Logout'
 
     # the cookie is send as a '|' delimited string
     # modIDs will be a python list of the ids that were sent in the cookie
@@ -376,16 +362,14 @@ def renderShoppingCart(self):
 def doCheckout(self):
     # navigation links
     nav = {}
-    nav['logonlink'] = LOGON
-    nav['logonlinktext'] = "Logon"
-    nav['homelink'] = HOME_LINK 
+
+    nav['homelink'] = "/"
     nav['homelinktext'] = "Home"
-    nav['newuserlink'] = ADD_LINK 
-    nav['newuserlinktext'] = "Add User"
-    nav['alluserslink'] = ALL_LINK 
-    nav['alluserslinktext'] = "All Users"
+    nav['newuserlink'] = ADD_LINK
     nav['moduleslink'] = ALL_MODULES
     nav['moduleslinktext'] = "Purchased Modules"
+    nav['logoutLink'] = '/logout.html'
+    nav['logoutText'] = 'Logout'
 
     template = JINJA_ENVIRONMENT.get_template('completeCheckout.html')
 
@@ -482,15 +466,13 @@ def renderStorePage(self):
     """"Used to process handle requests relating to the store"""
     
     nav = {}
-    nav['homelink'] = HOME_LINK
+    nav['homelink'] = '/'
     nav['homelinktext'] = "Home"
-    nav['newuserlink'] = ADD_LINK
-    nav['newuserlinktext'] = "Add User"
-    nav['alluserslink'] = ALL_LINK
-    nav['alluserslinktext'] = "All Users"
     nav['moduleslink'] = ALL_MODULES
     nav['moduleslinktext'] = "Purchased Modules"
     nav['checkout_link'] = BASEURL + "cart"
+    nav['logoutLink'] = '/logout.html'
+    nav['logoutText'] = 'Logout'
     mess = {}
 
 
@@ -551,7 +533,6 @@ class Remove(webapp2.RequestHandler):
     def get(self, id=None):
         if not id:
             return
-        renderConfirmDelete(self, id)
 
     def post(self, id=None):
         if not id:
@@ -691,10 +672,12 @@ class AdminLogon(webapp2.RequestHandler):
             nav['allUsers'] = 'View All Users'
             nav['addUserLink'] = '/prisoner'
             nav['addUser'] = "Add User"
+            nav['logoutLink'] = '/logout.html'
+            nav['logoutText'] = 'Logout'
 
             username = row[0]
             template = JINJA_ENVIRONMENT.get_template('adminsplash.html')
-            self.response.set_cookie(key="username", value=username, secure=True)
+            self.response.set_cookie(key="adminUsername", value=username, secure=True)
             self.response.write(template.render(nav=nav, username=username))
 
         else:
@@ -717,12 +700,34 @@ class AdminSplash(webapp2.RequestHandler):
         nav['allUsers'] = 'View All Users'
         nav['addUserLink'] = '/prisoner'
         nav['addUser'] = "Add User"
+        nav['logoutLink'] = '/logout.html'
+        nav['logoutText'] = 'Logout'
 
-        username = self.request.cookies.get("username")
+        username = self.request.cookies.get("adminUsername")
 
         template = JINJA_ENVIRONMENT.get_template("adminsplash.html")
         self.response.write(template.render(nav=nav, username=username))
 
+class Logout(webapp2.RequestHandler):
+    def get(self):
+        # set experiation of cookie and render logout confirmation
+        expireTime = datetime.datetime.now()
+
+        self.response.set_cookie(key="", value="", expires=expireTime)
+        template = JINJA_ENVIRONMENT.get_template("logoutPage.html")
+        username = ""
+        nav = {}
+        nav['homeText'] = "Home"
+        username = ""
+        if  self.request.cookies.get("adminUsername") is not None:
+            username = self.request.cookies.get("adminUsername")
+            nav['homeLink'] = '/adminlogon'
+
+        elif  self.request.cookies.get("username")is not None:
+            username = self.request.cookies.get("username")
+            nav['homeLink'] = '/'
+
+        self.response.write(template.render(username=username, nav=nav))
 
 
 
@@ -745,5 +750,6 @@ app = webapp2.WSGIApplication([
     ('/cart/confirmCheckout', performCheckout),
     ('/adminlogon', AdminLogon),
     ('/adminSplash.html', AdminSplash),
+    ('/logout.html', Logout)
 ], debug=True)
 # [END app]
